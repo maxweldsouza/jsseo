@@ -5,14 +5,21 @@ from tornado.httpserver import HTTPServer
 import hashlib
 import config
 import mysqldbhelper
+from urlparse import urlparse
 
 db = mysqldbhelper.DatabaseConnection(config.hostname,
                     user=config.user,
                     passwd=config.passwd,
                     db=config.db)
 
+def remove_script_tags(content):
+    #TODO
+    return content
+
 class PageHandler(tornado.web.RequestHandler):
     def get(self, path):
+        url = urlparse(path)
+        print url.path
         content = db.get_one('''
         select page_content from page
         where page_url = %s
@@ -20,21 +27,26 @@ class PageHandler(tornado.web.RequestHandler):
         self.write(content)
 
     def put(self, path):
-        content = self.get_argument('content')
-        hsh = hashlib.sha1(content).hexdigest()
+        try:
+            content = self.get_argument('content')
+            content = remove_script_tags(content)
+            hsh = hashlib.sha1(content).hexdigest()
 
-        oldhash = db.get_one('''
-        select page_hash from page
-        where page_url = %s''', (path,))
+            oldhash = db.get_one('''
+            select page_sha1 from page
+            where page_url = %s''', (path,))
 
-        if hsh == oldhash:
-            print 'page not changed'
-        else:
-            db.put('''
-            insert into page
-            (page_url, page_content, page_hash) values
-            (%s, %s, %s)
-            ''', (path, content, hsh))
+            if hsh == oldhash:
+                print 'page not changed'
+            else:
+                db.put('''
+                insert into page
+                (page_url, page_content, page_sha1) values
+                (%s, %s, %s)
+                ''', (path, content, hsh))
+        except Exception, e:
+            self.set_status(500)
+            self.write(str(e))
 
     def delete(self, path):
         db.put('''
