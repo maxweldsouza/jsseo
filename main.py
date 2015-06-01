@@ -2,6 +2,7 @@
 import tornado.ioloop
 import tornado.web
 from tornado.httpserver import HTTPServer
+import hashlib
 import config
 import mysqldbhelper
 
@@ -12,7 +13,33 @@ db = mysqldbhelper.DatabaseConnection(config.hostname,
 
 class PageHandler(tornado.web.RequestHandler):
     def get(self, path):
-        self.write('hello world')
+        content = db.get_one('''
+        select page_content from page
+        where page_url = %s
+        ''', (path,))
+        self.write(content)
+
+    def put(self, path):
+        content = self.get_argument('content')
+        hsh = hashlib.sha1(content).hexdigest()
+
+        oldhash = db.get_one('''
+        select page_hash from page
+        where page_url = %s''', (path,))
+
+        if hsh == oldhash:
+            print 'page not changed'
+        else:
+            db.put('''
+            insert into page
+            (page_url, page_content, page_hash) values
+            (%s, %s, %s)
+            ''', (path, content, hsh))
+
+    def delete(self, path):
+        db.put('''
+        delete from page
+        where page_url = %s''', (path,))
 
 settings = {
     #'default_handler_class': ErrorHandler,
