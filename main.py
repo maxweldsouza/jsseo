@@ -50,7 +50,7 @@ class ApiHandler(tornado.web.RequestHandler):
             else:
                 result = {
                         'hostname': hostname,
-                        'next-path': url
+                        'next-page': url
                         }
             self.write(json_output(result))
 
