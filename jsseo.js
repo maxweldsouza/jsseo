@@ -54,6 +54,12 @@ var jsSeo;
             return a;
         }
 
+        function getInternalLinks() {
+            var links = getLinksFromPage();
+            links = links.filter(isInternal);
+            return links;
+        }
+
         function nextPage () {
             var postcontent = {
                 action: 'next-page',
@@ -77,8 +83,31 @@ var jsSeo;
             });
         }
 
+        function submitPaths (callback) {
+            var postcontent = {
+                action: 'submit-paths',
+                paths: getInternalLinks()
+            }
+            if (links.length > 0) {
+                $.ajax({
+                    url: options.jsSeoUrl + 'api/v1',
+                    type: 'GET',
+                    data: postcontent,
+                    datatype: 'json',
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(data.message);
+                        callback();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown)
+                    {
+                    }
+                });
+            }
+        }
+
         if (action === 'send') {
             /* start crawl */
+            submitPaths();
             sendCurrentPage(function () {
                 nextPage();
             });

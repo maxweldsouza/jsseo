@@ -7,6 +7,7 @@ import config
 import mysqldbhelper
 from urlparse import urlparse
 import datetime
+import json
 
 db = mysqldbhelper.DatabaseConnection(config.hostname,
                     user=config.user,
@@ -58,18 +59,20 @@ class ApiHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Origin', '*')
         action = self.get_argument('action')
         hostname = self.get_argument('hostname')
-        path = self.get_argument('path')
-        if action == 'create-url':
-            db.put('''
-            insert into url
-            (url_path, site_hostname) values
-            (%s, %s)''', (path, hostname))
-
-        elif action == 'delete-url':
-            db.put('''
-            delete from url
-            where url_path = %s and
-            site_hostname = %s''', (path, hostname))
+        if action == 'submit-paths':
+            paths = self.get_argument('paths')
+            data = json.loads(paths)
+            for path in data['paths']:
+                exists = db.get_one('''
+                select page_path from page
+                where site_hostname = %s and
+                page_path = %s''', (hostname, path))
+                if not exists:
+                    db.put('''
+                    insert into page
+                    (page_path, site_hostname, page_expiresevery, page_expires) values
+                    (%s, %s, %s, %s)''',
+                    (path, hostname, default_expiry_time, datetime.datetime.now()))
 
 class PageHandler(tornado.web.RequestHandler):
     def get(self, url):
