@@ -15,6 +15,8 @@ db = mysqldbhelper.DatabaseConnection(config.hostname,
 
 json_output = mysqldbhelper.json_output
 
+default_expiry_time = 86400
+
 def remove_script_tags(content):
     #TODO
     return content
@@ -36,21 +38,20 @@ class ApiHandler(tornado.web.RequestHandler):
         self.set_header('Content-Type', 'application/json')
         action = self.get_argument('action')
         hostname = self.get_argument('hostname')
-        if action == 'next-path':
-            #limit = int(self.get_argument('limit', 20))
-            #offset = int(self.get_argument('offset', 0))
-            #if limit > 100 or limit <= 0:
-            #    self.write('limit is out of range')
-            #if offset < 0:
-            #    self.write('offset is out of range')
+        if action == 'next-page':
             url = db.get_one('''
             select page_path
             from page
-            where site_hostname = %s''', (hostname,))
-            result = {
-                    'hostname': hostname,
-                    'next-path': url
-                    }
+            where site_hostname = %s
+            and page_expires < current_timestamp()''', (hostname,))
+            print url
+            if url == None:
+                result = dict(hostname=hostname, message='all pages done')
+            else:
+                result = {
+                        'hostname': hostname,
+                        'next-path': url
+                        }
             self.write(json_output(result))
 
     def post(self, path):
@@ -76,8 +77,9 @@ class PageHandler(tornado.web.RequestHandler):
         url = parse_url(url)
         content = db.get_one('''
         select page_content from page
-        where page_path = %s
-        ''', (url.path,))
+        where page_path = %s and
+        site_hostname = %s
+        ''', (url.path, url.origin))
         self.write(content)
 
     def post(self, url):
@@ -98,14 +100,15 @@ class PageHandler(tornado.web.RequestHandler):
             site_hostname = %s and
             page_path = %s''', (urlobj.origin, urlobj.path))
 
-            expires = datetime.datetime.now() + datetime.timedelta(0, 86400) #secs
+            expires = datetime.datetime.now() + datetime.timedelta(0, default_expiry_time) #secs
 
             if not current:
                 db.put('''
                 insert into page
-                (site_hostname, page_path, page_content, page_sha1, page_expires) values
-                (%s, %s, %s, %s, %s)
-                ''', (urlobj.origin, urlobj.path, content, hsh, expires))
+                (site_hostname, page_path, page_content, page_sha1,
+                page_expires, page_expiresevery) values
+                (%s, %s, %s, %s, %s, %s)
+                ''', (urlobj.origin, urlobj.path, content, hsh, expires, default_expiry_time))
                 self.write(json_output({
                     'message': 'successfully created'
                     }))
@@ -116,10 +119,10 @@ class PageHandler(tornado.web.RequestHandler):
                 update page
                 set
                 site_hostname = %s, page_content = %s, page_sha1 = %s,
-                page_expires = %s
+                page_expires = %s, page_expiresevery = %s
                 where
                 page_id = %s
-                ''', (urlobj.origin, content, hsh, pageid, expires))
+                ''', (urlobj.origin, content, hsh, expires, default_expiry_time, pageid))
                 self.write(json_output({
                     'message': 'successfully updated'
                     }))
