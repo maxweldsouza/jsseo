@@ -40,12 +40,12 @@ class ApiHandler(tornado.web.RequestHandler):
         action = self.get_argument('action')
         hostname = self.get_argument('hostname')
         if action == 'next-page':
+            # send the next page to be crawled
             url = db.get_one('''
             select page_path
             from page
             where site_hostname = %s
             and page_expires < current_timestamp()''', (hostname,))
-            print url
             if url == None:
                 result = dict(hostname=hostname, message='all pages done')
             else:
@@ -59,20 +59,29 @@ class ApiHandler(tornado.web.RequestHandler):
         self.set_header('Access-Control-Allow-Origin', '*')
         action = self.get_argument('action')
         hostname = self.get_argument('hostname')
+        self.write(json_output(dict(message='recieved request')))
         if action == 'submit-paths':
+            # list of links
+            # TODO get paths from body and not argument
             paths = self.get_argument('paths')
             data = json.loads(paths)
             for path in data['paths']:
-                exists = db.get_one('''
-                select page_path from page
-                where site_hostname = %s and
-                page_path = %s''', (hostname, path))
-                if not exists:
-                    db.put('''
-                    insert into page
-                    (page_path, site_hostname, page_expiresevery, page_expires) values
-                    (%s, %s, %s, %s)''',
-                    (path, hostname, default_expiry_time, datetime.datetime.now()))
+                try:
+                    db.start()
+                    exists = db.get_one('''
+                    select page_path from page
+                    where site_hostname = %s and
+                    page_path = %s''', (hostname, path))
+                    if not exists:
+                        db.put('''
+                        insert into page
+                        (page_path, site_hostname, page_expiresevery, page_expires) values
+                        (%s, %s, %s, %s)''',
+                        (path, hostname, default_expiry_time, datetime.datetime.now()))
+                    db.save()
+                except Exception, e:
+                    db.rollback()
+                    raise
 
 class PageHandler(tornado.web.RequestHandler):
     def get(self, url):
@@ -106,6 +115,7 @@ class PageHandler(tornado.web.RequestHandler):
             expires = datetime.datetime.now() + datetime.timedelta(0, default_expiry_time) #secs
 
             if not current:
+                # TODO paths should always be present beforehand
                 db.put('''
                 insert into page
                 (site_hostname, page_path, page_content, page_sha1,
