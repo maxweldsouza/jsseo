@@ -2,17 +2,19 @@ import json
 import requests
 import time
 
-nopassed = 0
+pass_count = 0
 total = 0
 
 #TODO case insensitive json.loads
 #TODO pretty print json
 
 def test(req, res):
-    global nopassed, total
+    global pass_count, total
     time.sleep(1)
+    failed = False
 
-    def failed():
+    def fail_message():
+        failed = True
         print 'Test failed'
         print 'Request: '
         print req
@@ -23,17 +25,28 @@ def test(req, res):
         print r.headers
         print r.text
 
-    def check(expected, actual):
-        return expected != actual
+    def check_helper(expected, actual):
+        return expected == actual
 
-    def checkDicts(expected, actual):
+    def check_dicts_helper(expected, actual):
         for entry in expected:
             if not entry.lower() in actual:
-                failed()
-            #TODO
-            #if expected[entry] != actual[entry]:
-            #    passed = False
+                return False
+            if expected[entry] != actual[entry]:
+                return False
         return True
+
+    def check(*args):
+        if not check_helper(*args):
+            fail_message()
+
+    def check_dicts(*args):
+        if not check_dicts_helper(*args):
+            fail_message()
+
+    assert(check_dicts_helper({ "key": "value" }, { "key": "value" }))
+    assert(not check_dicts_helper({ "key": "value" }, { "key2": "value" }))
+    assert(not check_dicts_helper({ "key": "value" }, { "key": "value2" }))
 
     if req['method'] == 'get':
         r = requests.get(req['url'])
@@ -41,15 +54,15 @@ def test(req, res):
         r = requests.post(req['url'])
 
     check(res['status'], int(r.status_code))
-    checkDicts(res['headers'], r.headers)
+    check_dicts(res['headers'], r.headers)
 
     if 'content-type' in r.headers and r.headers['content-type'] == 'application/json':
-        checkDicts(res['content'], json.loads(r.text))
+        check_dicts(res['content'], json.loads(r.text))
     else:
         check(res['content'], r.text)
 
     if not failed:
-        nopassed += 1
+        pass_count += 1
     total += 1
 
 test({
@@ -86,5 +99,5 @@ test({
 #    }
 #})
 
-print 'passed: ', nopassed
+print 'passed: ', pass_count
 print 'total: ', total
