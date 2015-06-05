@@ -154,6 +154,7 @@ class PageHandler(tornado.web.RequestHandler):
     def delete(self, url):
         self.set_header('Content-Type', 'application/json')
         urlobj = parse_url(url)
+        self.set_header('Access-Control-Allow-Origin', urlobj.origin)
         db.put('''
         delete from page
         where page_path = %s

@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+from compare import compare
 
 pass_count = 0
 total = 0
@@ -9,24 +10,23 @@ total = 0
 #TODO pretty print json
 
 def test(req, res):
-    return
     global pass_count, total
     time.sleep(1)
     passed = True
 
-    def fail_message():
-        print 'Test failed'
-        print 'Request: '
-        print req
-        print 'Expected Response: '
-        print res
-        print 'Actual Response: '
-        actual = {
-            "status": r.status_code,
-            "headers": r.headers,
-            "content": r.text
-            }
-        print actual
+    def fail_message(n):
+        print 'Test {0} failed'.format(n)
+        #print 'Request: '
+        #print req
+        #print 'Expected Response: '
+        #print res
+        #print 'Actual Response: '
+        #actual = {
+        #    "status": r.status_code,
+        #    "headers": r.headers,
+        #    "content": r.text
+        #    }
+        #print actual
 
     def check(expected, actual):
         return expected == actual
@@ -40,12 +40,6 @@ def test(req, res):
                 return False
         return True
 
-    assert(check(3, 3))
-    assert(check(3 + 2, 5))
-    assert(check_dicts({ "key": "value" }, { "key": "value" }))
-    assert(not check_dicts({ "key": "value" }, { "key2": "value" }))
-    assert(not check_dicts({ "key": "value" }, { "key": "value2" }))
-
     if 'content' in req:
         payload = req['content']
     else:
@@ -58,21 +52,35 @@ def test(req, res):
     elif req['method'] == 'delete':
         r = requests.delete(req['url'], params=payload)
 
-    if 'status' in res:
-        passed = passed and check(res['status'], int(r.status_code))
-    if 'headers' in res:
-        passed = passed and check_dicts(res['headers'], r.headers)
-
     if 'content-type' in r.headers and r.headers['content-type'] == 'application/json':
-        passed = passed and check_dicts(res['content'], json.loads(r.text))
+        content = json.loads(r.text)
     else:
-        passed = passed and check(res['content'], r.text)
+        content = r.text
 
+    actual = {
+        "status": int(r.status_code),
+        "headers": r.headers,
+        "content": content
+    }
+
+    passed = compare(res, actual)
+
+#    if 'status' in res:
+#        passed = passed and check(res['status'], int(r.status_code))
+#    if 'headers' in res:
+#        passed = passed and check_dicts(res['headers'], r.headers)
+#
+#    if 'content-type' in r.headers and r.headers['content-type'] == 'application/json':
+#        passed = passed and check_dicts(res['content'], json.loads(r.text))
+#    else:
+#        passed = passed and check(res['content'], r.text)
+
+    total += 1
     if passed:
         pass_count += 1
     else:
-        fail_message()
-    total += 1
+        fail_message(total)
+        print actual
 
 test({
     "url": "http://localhost:4000/http://testsite.com",
@@ -95,9 +103,9 @@ test({
     "headers": {
         "content-type": "application/json",
         "access-control-allow-origin": "http://testsite.com",
-        "content": {
-            "message": "successfully created"
-        }
+    },
+    "content": {
+        "message": "successfully created"
     }
 })
 
@@ -110,9 +118,9 @@ test({
     "headers": {
         "content-type": "application/json",
         "access-control-allow-origin": "http://testsite.com",
-        "content": {
-            "message": "successfully deleted"
-        }
+    },
+    "content": {
+        "message": "successfully deleted"
     }
 })
 
