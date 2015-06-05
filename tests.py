@@ -20,9 +20,11 @@ def test(req, res):
         print 'Expected Response: '
         print res
         print 'Actual Response: '
-        print r.status_code
-        print r.headers
-        print r.text
+        actual = {
+            "status": r.status_code,
+            "headers": r.headers,
+            "content": r.text
+        print actual
 
     def check(expected, actual):
         return expected == actual
@@ -62,6 +64,15 @@ def test(req, res):
         fail_message()
     total += 1
 
+test({
+    "url": "http://localhost:4000/http://somesite.com",
+    "method": "get"
+},
+{
+    "status": 404,
+    "content": "Not Foun"
+})
+
 #test({
 #    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://somesite.com",
 #    "method": "get"
@@ -95,15 +106,6 @@ def test(req, res):
 #        "message": "recieved request"
 #    }
 #})
-
-test({
-    "url": "http://localhost:4000/http://somesite.com",
-    "method": "get"
-},
-{
-    "status": 404,
-    "content": "Not Found"
-})
 
 print 'passed: ', pass_count
 print 'total: ', total
