@@ -92,7 +92,11 @@ class PageHandler(tornado.web.RequestHandler):
         where page_path = %s and
         site_hostname = %s
         ''', (url.path, url.origin))
-        self.write(content)
+        if content == None:
+            self.set_status(404)
+            self.write('Not Found')
+        else:
+            self.write(content)
 
     def post(self, url):
         try:

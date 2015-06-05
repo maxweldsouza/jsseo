@@ -11,10 +11,9 @@ total = 0
 def test(req, res):
     global pass_count, total
     time.sleep(1)
-    failed = False
+    passed = True
 
     def fail_message():
-        failed = True
         print 'Test failed'
         print 'Request: '
         print req
@@ -25,10 +24,10 @@ def test(req, res):
         print r.headers
         print r.text
 
-    def check_helper(expected, actual):
+    def check(expected, actual):
         return expected == actual
 
-    def check_dicts_helper(expected, actual):
+    def check_dicts(expected, actual):
         for entry in expected:
             if not entry.lower() in actual:
                 return False
@@ -36,51 +35,49 @@ def test(req, res):
                 return False
         return True
 
-    def check(*args):
-        if not check_helper(*args):
-            fail_message()
-
-    def check_dicts(*args):
-        if not check_dicts_helper(*args):
-            fail_message()
-
-    assert(check_dicts_helper({ "key": "value" }, { "key": "value" }))
-    assert(not check_dicts_helper({ "key": "value" }, { "key2": "value" }))
-    assert(not check_dicts_helper({ "key": "value" }, { "key": "value2" }))
+    assert(check(3, 3))
+    assert(check(3 + 2, 5))
+    assert(check_dicts({ "key": "value" }, { "key": "value" }))
+    assert(not check_dicts({ "key": "value" }, { "key2": "value" }))
+    assert(not check_dicts({ "key": "value" }, { "key": "value2" }))
 
     if req['method'] == 'get':
         r = requests.get(req['url'])
     elif req['method'] == 'post':
         r = requests.post(req['url'])
 
-    check(res['status'], int(r.status_code))
-    check_dicts(res['headers'], r.headers)
+    if 'status' in res:
+        passed = passed and check(res['status'], int(r.status_code))
+    if 'headers' in res:
+        passed = passed and check_dicts(res['headers'], r.headers)
 
     if 'content-type' in r.headers and r.headers['content-type'] == 'application/json':
-        check_dicts(res['content'], json.loads(r.text))
+        passed = passed and check_dicts(res['content'], json.loads(r.text))
     else:
-        check(res['content'], r.text)
+        passed = passed and check(res['content'], r.text)
 
-    if not failed:
+    if passed:
         pass_count += 1
+    else:
+        fail_message()
     total += 1
 
-test({
-    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://somesite.com",
-    "method": "get"
-},
-{
-    "status": 200,
-    "headers": {
-        "content-type": "application/json",
-        "access-control-allow-origin": "*"
-    },
-    "content": {
-        "hostname": "http://somesite.com",
-        "message": "all pages done"
-    }
-})
-
+#test({
+#    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://somesite.com",
+#    "method": "get"
+#},
+#{
+#    "status": 200,
+#    "headers": {
+#        "content-type": "application/json",
+#        "access-control-allow-origin": "*"
+#    },
+#    "content": {
+#        "hostname": "http://somesite.com",
+#        "message": "all pages done"
+#    }
+#})
+#
 #test({
 #    "url": "http://localhost:4000/api/v1?action=submit-paths&hostname=http://somesite.com",
 #    "method": "post",
@@ -98,6 +95,15 @@ test({
 #        "message": "recieved request"
 #    }
 #})
+
+test({
+    "url": "http://localhost:4000/http://somesite.com",
+    "method": "get"
+},
+{
+    "status": 404,
+    "content": "Not Found"
+})
 
 print 'passed: ', pass_count
 print 'total: ', total
