@@ -16,29 +16,6 @@ def test(req, res):
 
     def fail_message(n):
         print 'Test {0} failed'.format(n)
-        #print 'Request: '
-        #print req
-        #print 'Expected Response: '
-        #print res
-        #print 'Actual Response: '
-        #actual = {
-        #    "status": r.status_code,
-        #    "headers": r.headers,
-        #    "content": r.text
-        #    }
-        #print actual
-
-    def check(expected, actual):
-        return expected == actual
-
-    def check_dicts(expected, actual):
-        for entry in expected:
-            if not entry.lower() in actual:
-                return False
-            # TODO recursive checking
-            if expected[entry] != actual[entry]:
-                return False
-        return True
 
     if 'content' in req:
         payload = req['content']
@@ -64,16 +41,6 @@ def test(req, res):
     }
 
     passed = compare(res, actual)
-
-#    if 'status' in res:
-#        passed = passed and check(res['status'], int(r.status_code))
-#    if 'headers' in res:
-#        passed = passed and check_dicts(res['headers'], r.headers)
-#
-#    if 'content-type' in r.headers and r.headers['content-type'] == 'application/json':
-#        passed = passed and check_dicts(res['content'], json.loads(r.text))
-#    else:
-#        passed = passed and check(res['content'], r.text)
 
     total += 1
     if passed:
