@@ -152,6 +152,7 @@ class PageHandler(tornado.web.RequestHandler):
                 }))
 
     def delete(self, url):
+        self.set_header('Content-Type', 'application/json')
         urlobj = parse_url(url)
         db.put('''
         delete from page

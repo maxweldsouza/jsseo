@@ -9,6 +9,7 @@ total = 0
 #TODO pretty print json
 
 def test(req, res):
+    return
     global pass_count, total
     time.sleep(1)
     passed = True
@@ -24,6 +25,7 @@ def test(req, res):
             "status": r.status_code,
             "headers": r.headers,
             "content": r.text
+            }
         print actual
 
     def check(expected, actual):
@@ -33,6 +35,7 @@ def test(req, res):
         for entry in expected:
             if not entry.lower() in actual:
                 return False
+            # TODO recursive checking
             if expected[entry] != actual[entry]:
                 return False
         return True
@@ -43,10 +46,17 @@ def test(req, res):
     assert(not check_dicts({ "key": "value" }, { "key2": "value" }))
     assert(not check_dicts({ "key": "value" }, { "key": "value2" }))
 
+    if 'content' in req:
+        payload = req['content']
+    else:
+        payload = {}
+
     if req['method'] == 'get':
-        r = requests.get(req['url'])
+        r = requests.get(req['url'], params=payload)
     elif req['method'] == 'post':
-        r = requests.post(req['url'])
+        r = requests.post(req['url'], params=payload)
+    elif req['method'] == 'delete':
+        r = requests.delete(req['url'], params=payload)
 
     if 'status' in res:
         passed = passed and check(res['status'], int(r.status_code))
@@ -65,12 +75,45 @@ def test(req, res):
     total += 1
 
 test({
-    "url": "http://localhost:4000/http://somesite.com",
+    "url": "http://localhost:4000/http://testsite.com",
     "method": "get"
 },
 {
     "status": 404,
-    "content": "Not Foun"
+    "content": "Not Found"
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
+    "method": "post",
+    "content": {
+        "content": "<html>hello world</html>"
+    }
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "http://testsite.com",
+        "content": {
+            "message": "successfully created"
+        }
+    }
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
+    "method": "delete"
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "http://testsite.com",
+        "content": {
+            "message": "successfully deleted"
+        }
+    }
 })
 
 #test({
