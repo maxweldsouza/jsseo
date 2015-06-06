@@ -16,6 +16,8 @@ def test(req, res):
 
     def fail_message(n):
         print 'Test {0} failed'.format(n)
+        print 'Request:'
+        print req
 
     if 'content' in req:
         payload = req['content']
@@ -148,7 +150,7 @@ test({
     "url": "http://localhost:4000/api/v1?action=submit-paths&hostname=http://testsite.com",
     "method": "post",
     "content": {
-        "paths": "/home"
+        "paths": "/\n/home"
     }
 },
 {
@@ -159,6 +161,33 @@ test({
     "content": {
         "message": "recieved request"
     }
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
+    "method": "post",
+    "content": {
+        "content": "<html>hello world</html>"
+    }
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "http://testsite.com",
+    },
+    "content": {
+        "message": "successfully updated"
+    }
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com/",
+    "method": "get"
+},
+{
+    "status": 200,
+    "content": "<html>hello world</html>"
 })
 
 test({

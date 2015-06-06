@@ -23,16 +23,32 @@ def remove_script_tags(content):
     return content
 
 def parse_url(url):
+    """ Parse urls and return an object with an origin and a path.
+    Add trailing slash only to the root url. Root urls are stored
+    in the database with path "/" 
+    http://googlewebmastercentral.blogspot.in/2010/04/to-slash-or-not-to-slash.html """
+
     class UrlObj():
-        pass
+        def __str__(self):
+            return 'Origin: {0} \n Path: {1}'.format(self.origin, self.path)
+
     result = UrlObj()
     urlobj = urlparse(url)
     origin = urlobj.scheme + '://' + urlobj.netloc
     path = url[len(origin):]
+    if path == '':
+        path = '/'
 
     result.origin = origin
     result.path = path
     return result
+
+assert(parse_url('http://testsite.com').path == '/')
+assert(parse_url('http://testsite.com/').path == '/')
+assert(parse_url('http://testsite.com?key=value').path == '?key=value')
+assert(parse_url('http://testsite.com/').path == '/')
+assert(parse_url('http://testsite.com/home').path == '/home')
+assert(parse_url('http://testsite.com/home/').path == '/home/')
 
 class JsSeoHandler(tornado.web.RequestHandler):
     def missing_argument_error(self, message):
@@ -78,7 +94,6 @@ class ApiHandler(JsSeoHandler):
             self.write(json_output(dict(message='recieved request')))
             if action == 'submit-paths':
                 # list of links
-                # TODO get paths from body and not argument
                 paths = self.get_argument('paths')
                 paths = paths.split('\n')
                 for path in paths:
