@@ -8,6 +8,7 @@ import mysqldbhelper
 from urlparse import urlparse
 import datetime
 import json
+import re
 
 db = mysqldbhelper.DatabaseConnection(config.hostname,
                     user=config.user,
@@ -21,6 +22,14 @@ default_expiry_time = 86400
 def remove_script_tags(content):
     #TODO
     return content
+
+def is_valid_url(url):
+    return re.match(r'^(?:http|https)://', url)
+
+assert(is_valid_url('http://www.google.com'))
+assert(is_valid_url('https://www.google.com'))
+assert(not is_valid_url('ftp://www.google.com'))
+assert(not is_valid_url('www.google.com'))
 
 def parse_url(url):
     """ Parse urls and return an object with an origin and a path.
@@ -120,6 +129,11 @@ class ApiHandler(JsSeoHandler):
 class PageHandler(JsSeoHandler):
     def get(self, url):
         self.set_header('content-type', 'text/html')
+        if not is_valid_url(url):
+            self.set_status(400)
+            self.write('Bad request')
+            return
+
         url = parse_url(url)
         content = db.get_one('''
         select page_content from page

@@ -74,7 +74,9 @@ var jsSeo;
                 datatype: 'json',
                 success: function (data, textStatus, jqXHR) {
                     if (typeof data['next-page'] !== 'undefined') {
-                        window.location = data['next-page'];
+                        if (data['next-page'] != '#') {
+                            window.location = data['next-page'];
+                        }
                     } else {
                         console.log(data.message);
                     }
