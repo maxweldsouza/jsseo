@@ -59,8 +59,7 @@ var jsSeo;
         function getInternalLinks() {
             var links = getLinksFromPage();
             links = links.filter(isInternal);
-            console.log(links);
-            return links.join('\n');
+            return links;
         }
 
         function nextPage () {
@@ -86,16 +85,16 @@ var jsSeo;
         }
 
         function submitPaths (callback) {
+            var links = getInternalLinks();
             var postcontent = {
-                action: 'submit-paths',
-                paths: getInternalLinks()
+                paths: links.join('\n')
             }
+            var apiloc = 'api/v1?action=submit-paths&hostname=' + hostname;
             if (links.length > 0) {
                 $.ajax({
-                    url: options.jsSeoUrl + 'api/v1',
-                    type: 'GET',
+                    url: options.jsSeoUrl + apiloc,
+                    type: 'POST',
                     data: postcontent,
-                    datatype: 'json',
                     success: function (data, textStatus, jqXHR) {
                         console.log(data.message);
                         callback();
@@ -108,9 +107,10 @@ var jsSeo;
 
         if (action === 'send') {
             /* start crawl */
-            submitPaths();
-            sendCurrentPage(function () {
-                nextPage();
+            submitPaths(function () {
+                sendCurrentPage(function () {
+                    nextPage();
+                });
             });
         }
     }
