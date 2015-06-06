@@ -2,6 +2,8 @@ var jsSeo;
 (function () {
     'use strict';
 
+    // TODO remove console.log's
+
     jsSeo = function(action) {
         var links = [];
         var hostname = window.location.origin;
@@ -57,7 +59,8 @@ var jsSeo;
         function getInternalLinks() {
             var links = getLinksFromPage();
             links = links.filter(isInternal);
-            return links;
+            console.log(links);
+            return links.join('\n');
         }
 
         function nextPage () {
@@ -77,8 +80,7 @@ var jsSeo;
                         console.log(data.message);
                     }
                 },
-                error: function (jqXHR, textStatus, errorThrown)
-                {
+                error: function (jqXHR, textStatus, errorThrown) {
                 }
             });
         }
@@ -98,8 +100,7 @@ var jsSeo;
                         console.log(data.message);
                         callback();
                     },
-                    error: function (jqXHR, textStatus, errorThrown)
-                    {
+                    error: function (jqXHR, textStatus, errorThrown) {
                     }
                 });
             }

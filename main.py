@@ -128,8 +128,8 @@ class PageHandler(JsSeoHandler):
         site_hostname = %s
         ''', (url.path, url.origin))
         if content == None:
-            self.set_status(404)
-            self.write('Not Found')
+            self.set_status(502)
+            self.write('Bad Gateway')
         else:
             self.write(content)
 

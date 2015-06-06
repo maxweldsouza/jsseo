@@ -57,8 +57,8 @@ test({
     "method": "get"
 },
 {
-    "status": 404,
-    "content": "Not Found"
+    "status": 502,
+    "content": "Bad Gateway"
 })
 
 test({
