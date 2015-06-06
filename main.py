@@ -29,67 +29,87 @@ def parse_url(url):
     urlobj = urlparse(url)
     origin = urlobj.scheme + '://' + urlobj.netloc
     path = url[len(origin):]
+
     result.origin = origin
     result.path = path
     return result
 
-class ApiHandler(tornado.web.RequestHandler):
+class JsSeoHandler(tornado.web.RequestHandler):
+    def missing_argument_error(self, message):
+        self.set_header('content-type', 'application/json')
+        self.set_status(400)
+        self.write(json_output({
+            'status': 400,
+            'message': message
+            }))
+
+class ApiHandler(JsSeoHandler):
     def get(self, path):
-        self.set_header('Access-Control-Allow-Origin', '*')
-        self.set_header('Content-Type', 'application/json')
-        action = self.get_argument('action')
-        hostname = self.get_argument('hostname')
-        if action == 'next-page':
-            # send the next page to be crawled
-            url = db.get_one('''
-            select page_path
-            from page
-            where site_hostname = %s
-            and page_expires < current_timestamp()''', (hostname,))
-            if url == None:
-                result = dict(hostname=hostname, message='all pages done')
-            else:
-                result = {
-                        'hostname': hostname,
-                        'next-page': url
-                        }
-            self.write(json_output(result))
+        try:
+            self.set_header('access-control-allow-origin', '*')
+            self.set_header('content-type', 'application/json')
+            action = self.get_argument('action')
+            hostname = self.get_argument('hostname')
+            if action == 'next-page':
+                # send the next page to be crawled
+                url = db.get_one('''
+                select page_path
+                from page
+                where site_hostname = %s
+                and (page_expires < current_timestamp()
+                or page_content is null)''', (hostname,))
+                if url == None:
+                    result = dict(hostname=hostname, message='all pages done')
+                else:
+                    result = {
+                            'hostname': hostname,
+                            'next-page': url
+                            }
+                self.write(json_output(result))
+        except tornado.web.MissingArgumentError, e:
+            self.missing_argument_error(str(e))
 
     def post(self, path):
-        self.set_header('Access-Control-Allow-Origin', '*')
-        action = self.get_argument('action')
-        hostname = self.get_argument('hostname')
-        self.write(json_output(dict(message='recieved request')))
-        if action == 'submit-paths':
-            # list of links
-            # TODO get paths from body and not argument
-            paths = self.get_argument('paths')
-            data = json.loads(paths)
-            for path in data['paths']:
-                try:
-                    db.start()
-                    exists = db.get_one('''
-                    select page_path from page
-                    where site_hostname = %s and
-                    page_path = %s''', (hostname, path))
-                    if not exists:
-                        db.put('''
-                        insert into page
-                        (page_path, site_hostname, page_expiresevery, page_expires) values
-                        (%s, %s, %s, %s)''',
-                        (path, hostname, default_expiry_time, datetime.datetime.now()))
-                    db.save()
-                except Exception, e:
-                    db.rollback()
-                    raise
+        try:
+            self.set_header('access-control-allow-origin', '*')
+            self.set_header('content-type', 'application/json')
+            action = self.get_argument('action')
+            hostname = self.get_argument('hostname')
+            self.write(json_output(dict(message='recieved request')))
+            if action == 'submit-paths':
+                # list of links
+                # TODO get paths from body and not argument
+                paths = self.get_argument('paths')
+                paths = paths.split('\n')
+                for path in paths:
+                    try:
+                        db.start()
+                        exists = db.get_one('''
+                        select page_path from page
+                        where site_hostname = %s and
+                        page_path = %s''', (hostname, path))
+                        if not exists:
+                            db.put('''
+                            insert into page
+                            (page_path, site_hostname, page_expiresevery, page_expires) values
+                            (%s, %s, %s, %s)''',
+                            (path, hostname, default_expiry_time, datetime.datetime.now()))
+                        db.save()
+                    except Exception, e:
+                        db.rollback()
+                        #TODO log
 
-class PageHandler(tornado.web.RequestHandler):
+        except tornado.web.MissingArgumentError, e:
+            self.missing_argument_error(str(e))
+
+class PageHandler(JsSeoHandler):
     def get(self, url):
-        self.set_header('Content-Type', 'text/html')
+        self.set_header('content-type', 'text/html')
         url = parse_url(url)
         content = db.get_one('''
         select page_content from page
-        where page_path = %s and
+        where
+        page_path = %s and
         site_hostname = %s
         ''', (url.path, url.origin))
         if content == None:
@@ -100,7 +120,7 @@ class PageHandler(tornado.web.RequestHandler):
 
     def post(self, url):
         try:
-            self.set_header('Content-Type', 'application/json')
+            self.set_header('content-type', 'application/json')
 
             content = self.get_argument('content')
             content = remove_script_tags(content)
@@ -108,7 +128,7 @@ class PageHandler(tornado.web.RequestHandler):
             hsh = hashlib.sha1(content).hexdigest()
 
             urlobj = parse_url(url)
-            self.set_header('Access-Control-Allow-Origin', urlobj.origin)
+            self.set_header('access-control-allow-origin', urlobj.origin)
 
             current = db.get_one('''
             select page_id, page_sha1 from page
@@ -144,17 +164,19 @@ class PageHandler(tornado.web.RequestHandler):
                     'message': 'successfully updated'
                     }))
 
+        except tornado.web.MissingArgumentError, e:
+            self.missing_argument_error(str(e))
+
         except Exception, e:
-            self.set_status(500)
             print str(e)
             self.write(json_output({
                 'message': str(e)
                 }))
 
     def delete(self, url):
-        self.set_header('Content-Type', 'application/json')
+        self.set_header('content-type', 'application/json')
         urlobj = parse_url(url)
-        self.set_header('Access-Control-Allow-Origin', urlobj.origin)
+        self.set_header('access-control-allow-origin', urlobj.origin)
         db.put('''
         delete from page
         where page_path = %s

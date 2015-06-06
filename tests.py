@@ -11,7 +11,7 @@ total = 0
 
 def test(req, res):
     global pass_count, total
-    time.sleep(1)
+    time.sleep(0.2)
     passed = True
 
     def fail_message(n):
@@ -49,6 +49,7 @@ def test(req, res):
         fail_message(total)
         print actual
 
+# pages
 test({
     "url": "http://localhost:4000/http://testsite.com",
     "method": "get"
@@ -56,6 +57,14 @@ test({
 {
     "status": 404,
     "content": "Not Found"
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
+    "method": "post"
+},
+{
+    "status": 400
 })
 
 test({
@@ -78,6 +87,33 @@ test({
 
 test({
     "url": "http://localhost:4000/http://testsite.com",
+    "method": "post",
+    "content": {
+        "content": "<html>hello world !</html>"
+    }
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "http://testsite.com",
+    },
+    "content": {
+        "message": "successfully updated"
+    }
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
+    "method": "get"
+},
+{
+    "status": 200,
+    "content": "<html>hello world !</html>"
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com",
     "method": "delete"
 },
 {
@@ -91,39 +127,70 @@ test({
     }
 })
 
-#test({
-#    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://somesite.com",
-#    "method": "get"
-#},
-#{
-#    "status": 200,
-#    "headers": {
-#        "content-type": "application/json",
-#        "access-control-allow-origin": "*"
-#    },
-#    "content": {
-#        "hostname": "http://somesite.com",
-#        "message": "all pages done"
-#    }
-#})
-#
-#test({
-#    "url": "http://localhost:4000/api/v1?action=submit-paths&hostname=http://somesite.com",
-#    "method": "post",
-#    "content": {
-#        "paths": ["/home", "/", "/something"]
-#    }
-#},
-#{
-#    "status": 200,
-#    "headers": {
-#        "content-type": "text/html",
-#        "access-control-allow-origin": "*"
-#    },
-#    "content": {
-#        "message": "recieved request"
-#    }
-#})
+# urls
+test({
+    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://testsite.com",
+    "method": "get"
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+    },
+    "content": {
+        "hostname": "http://testsite.com",
+        "message": "all pages done"
+    }
+})
+
+test({
+    "url": "http://localhost:4000/api/v1?action=submit-paths&hostname=http://testsite.com",
+    "method": "post",
+    "content": {
+        "paths": "/home"
+    }
+},
+{
+    "status": 200,
+    "headers": {
+        "access-control-allow-origin": "*"
+    },
+    "content": {
+        "message": "recieved request"
+    }
+})
+
+test({
+    "url": "http://localhost:4000/api/v1?action=next-page&hostname=http://testsite.com",
+    "method": "get"
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "*"
+    },
+    "content": {
+        "hostname": "http://testsite.com",
+        "next-page": "/home"
+    }
+})
+
+test({
+    "url": "http://localhost:4000/http://testsite.com/home",
+    "method": "delete"
+},
+{
+    "status": 200,
+    "headers": {
+        "content-type": "application/json",
+        "access-control-allow-origin": "http://testsite.com",
+    },
+    "content": {
+        "message": "successfully deleted"
+    }
+})
 
 print 'passed: ', pass_count
 print 'total: ', total

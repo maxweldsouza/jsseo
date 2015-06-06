@@ -1,3 +1,8 @@
+import collections
+
+def is_dictionarylike(obj):
+    return isinstance(obj, collections.Mapping)
+
 def print_if_false(f):
     def wrapper(*args):
         result = f(*args)
@@ -24,9 +29,14 @@ def compare_lists(expected, actual):
     return True
 
 def compare(expected, actual):
-    if isinstance(expected, dict):
+    if is_dictionarylike(expected):
+        if not is_dictionarylike(actual):
+            print 'different types: ', type(expected) , ' ', type(actual)
+            return False
         return compare_dicts(expected, actual)
     elif isinstance(expected, list):
+        if not isinstance(actual, list):
+            return False
         return compare_lists(expected, actual)
     else:
         if expected != actual:
