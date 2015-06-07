@@ -9,6 +9,7 @@ from urlparse import urlparse
 import datetime
 import json
 import re
+from bs4 import BeautifulSoup
 
 db = mysqldbhelper.DatabaseConnection(config.hostname,
                     user=config.user,
@@ -19,9 +20,10 @@ json_output = mysqldbhelper.json_output
 
 default_expiry_time = 86400
 
-def remove_script_tags(content):
-    #TODO
-    return content
+def remove_script_tags(html):
+    soup = BeautifulSoup(html)
+    [s.extract() for s in soup('script')]
+    return soup.prettify()
 
 def is_valid_url(url):
     return re.match(r'^(?:http|https)://', url)
