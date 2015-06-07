@@ -7,3 +7,6 @@ side for web robots.
 Security Tip
 Make sure you strip all cookie information before
 sending requests to the server.
+
+Setting Options
+jsSeo('setoption', 'jsSeoUrl', 'http://localhost:4000');

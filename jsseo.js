@@ -4,12 +4,13 @@ var jsSeo;
 
     // TODO remove console.log's
 
-    jsSeo = function(action) {
+    jsSeo = function() {
+        var options = {
+            jsSeoUrl: ''
+        }
+
         var links = [];
         var hostname = window.location.origin;
-        var options = {
-            jsSeoUrl: 'http://localhost:4000/'
-        }
 
         function sendCurrentPage(callback) {
             var path = window.location.href;
@@ -107,13 +108,23 @@ var jsSeo;
             }
         }
 
-        if (action === 'send') {
-            /* start crawl */
+        function send(url) {
+            if (typeof url !== 'undefined') {
+                // add trailing slash if not present
+                if (url[url.length - 1] !== '/') {
+                    url = url + '/';
+                }
+                options.jsSeoUrl = url;
+            }
             submitPaths(function () {
                 sendCurrentPage(function () {
                     nextPage();
                 });
             });
         }
-    }
+
+        return {
+            'send': send
+        }
+    }();
 }())
