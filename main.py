@@ -84,7 +84,7 @@ class InstallHandler(tornado.web.RequestHandler):
         if not config['installed']:
             self.render('install.html')
         else:
-            self.send_error(404)
+            self.send_error(400)
 
     def post(self):
         if not config['installed']:
