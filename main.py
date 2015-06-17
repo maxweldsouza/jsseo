@@ -4,7 +4,6 @@ import tornado.ioloop
 import tornado.web
 from tornado.httpserver import HTTPServer
 import hashlib
-import config
 import mysqldbhelper
 from urlparse import urlparse
 import datetime
