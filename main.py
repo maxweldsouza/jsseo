@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import traceback
 import tornado.ioloop
 import tornado.web
 from tornado.httpserver import HTTPServer
@@ -97,16 +98,21 @@ class InstallHandler(tornado.web.RequestHandler):
                 check = db.get_one('SELECT 1', ())
                 if not check:
                     raise Exception('Test query did not run')
-                config['installed'] = True
+
+                f = open('schema/schema.sql', 'r')
+                mainquery = f.read()
+                db.put(mainquery, ())
 
                 f = open('config.json', 'w')
                 f.write(json.dumps(config, indent=4))
                 self.write('Installation complete')
 
+                config['installed'] = True
+
             except Exception, e:
                 self.write(('Could not connect to database. '
                     'Check your settings and try again.'))
-                self.write(str(e))
+                self.write(str(traceback.format_exc()))
 
 class ApiHandler(JsSeoHandler):
     def get(self, path):

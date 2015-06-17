@@ -2,13 +2,12 @@
     "username": "root", 
     "certfile": "path/to/the/crt/file", 
     "database": "jsseo", 
-    "passwd": "", 
     "hostname": "localhost", 
     "db": "jsseo", 
-    "installed": true, 
+    "installed": false, 
     "ssl": false, 
     "user": "", 
-    "password": "dttmw5d", 
+    "password": "", 
     "keyfile": "path/to/the/key/file", 
     "port": 4000
 }
