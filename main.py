@@ -15,10 +15,15 @@ with open('config.json') as f:
     config_text = f.read()
 config = json.loads(config_text)
 
-db = mysqldbhelper.DatabaseConnection(config['hostname'],
-                    user=config['user'],
-                    passwd=config['passwd'],
-                    db=config['db'])
+def connect_to_database():
+    db = mysqldbhelper.DatabaseConnection(config['hostname'],
+                        user=config['username'],
+                        passwd=config['password'],
+                        db=config['database'])
+    return db
+
+if config['installed']:
+    connect_to_database()
 
 json_output = mysqldbhelper.json_output
 
@@ -79,17 +84,29 @@ class InstallHandler(tornado.web.RequestHandler):
         if not config['installed']:
             self.render('install.html')
         else:
-            pass
+            self.send_error(404)
 
-    def post(self, path):
+    def post(self):
         if not config['installed']:
             config['database'] = self.get_argument('database')
             config['username'] = self.get_argument('username')
             config['password'] = self.get_argument('password')
             config['hostname'] = self.get_argument('hostname')
-            f = open('config.json', 'w')
-            f.write(json.dumps(config))
-            self.write('Installation complete')
+            try:
+                db = connect_to_database()
+                check = db.get_one('SELECT 1', ())
+                if not check:
+                    raise Exception('Test query did not run')
+                config['installed'] = True
+
+                f = open('config.json', 'w')
+                f.write(json.dumps(config, indent=4))
+                self.write('Installation complete')
+
+            except Exception, e:
+                self.write(('Could not connect to database. '
+                    'Check your settings and try again.'))
+                self.write(str(e))
 
 class ApiHandler(JsSeoHandler):
     def get(self, path):
@@ -153,8 +170,7 @@ class PageHandler(JsSeoHandler):
     def get(self, url):
         self.set_header('content-type', 'text/html')
         if not is_valid_url(url):
-            self.set_status(400)
-            self.write('Bad request')
+            self.send_error(400)
             return
 
         url = parse_url(url)
@@ -165,8 +181,7 @@ class PageHandler(JsSeoHandler):
         site_hostname = %s
         ''', (url.path, url.origin))
         if content == None:
-            self.set_status(502)
-            self.write('Bad Gateway')
+            self.set_error(502)
         else:
             self.write(content)
 

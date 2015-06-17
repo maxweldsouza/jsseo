@@ -1,11 +1,14 @@
 {
-    "installed": false,
-    "hostname": "localhost",
-    "user": "",
-    "passwd": "",
-    "db": "jsseo",
-    "port": 4000,
-    "ssl": false,
-    "certfile": "path/to/the/crt/file",
-    "keyfile": "path/to/the/key/file"
+    "username": "root", 
+    "certfile": "path/to/the/crt/file", 
+    "database": "jsseo", 
+    "passwd": "", 
+    "hostname": "localhost", 
+    "db": "jsseo", 
+    "installed": true, 
+    "ssl": false, 
+    "user": "", 
+    "password": "dttmw5d", 
+    "keyfile": "path/to/the/key/file", 
+    "port": 4000
 }
