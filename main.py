@@ -98,10 +98,6 @@ class InstallHandler(tornado.web.RequestHandler):
                 if not check:
                     raise Exception('Test query did not run')
 
-                f = open('schema/schema.sql', 'r')
-                mainquery = f.read()
-                db.put(mainquery, ())
-
                 f = open('config.json', 'w')
                 f.write(json.dumps(config, indent=4))
                 self.write('Installation complete')
