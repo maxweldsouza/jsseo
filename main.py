@@ -11,10 +11,14 @@ import json
 import re
 from bs4 import BeautifulSoup
 
-db = mysqldbhelper.DatabaseConnection(config.hostname,
-                    user=config.user,
-                    passwd=config.passwd,
-                    db=config.db)
+with open('config.json') as f:
+    config_text = f.read()
+config = json.loads(config_text)
+
+db = mysqldbhelper.DatabaseConnection(config['hostname'],
+                    user=config['user'],
+                    passwd=config['passwd'],
+                    db=config['db'])
 
 json_output = mysqldbhelper.json_output
 
@@ -69,6 +73,23 @@ class JsSeoHandler(tornado.web.RequestHandler):
             'status': 400,
             'message': message
             }))
+
+class InstallHandler(tornado.web.RequestHandler):
+    def get(self):
+        if not config['installed']:
+            self.render('install.html')
+        else:
+            pass
+
+    def post(self, path):
+        if not config['installed']:
+            config['database'] = self.get_argument('database')
+            config['username'] = self.get_argument('username')
+            config['password'] = self.get_argument('password')
+            config['hostname'] = self.get_argument('hostname')
+            f = open('config.json', 'w')
+            f.write(json.dumps(config))
+            self.write('Installation complete')
 
 class ApiHandler(JsSeoHandler):
     def get(self, path):
@@ -228,18 +249,19 @@ settings = {
 
 application = tornado.web.Application([
     (r"/api/v1(.*)", ApiHandler),
+    (r"/install", InstallHandler),
     (r"/(.*)", PageHandler),
     ], **settings)
 
 if __name__ == "__main__":
-    port = config.port
-    if config.ssl:
+    port = config['port']
+    if config['ssl']:
         server = HTTPServer(application, ssl_options = {
             'certfile': os.path.join(config.certfile),
             'keyfile': os.path.join(config.keyfile),
             })
-        server.listen(config.port)
+        server.listen(port)
     else:
-        application.listen(config.port)
+        application.listen(port)
     print 'JsSeo running on port: ' + str(port)
     tornado.ioloop.IOLoop.instance().start()

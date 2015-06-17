@@ -1,0 +1,11 @@
+{
+    "installed": false,
+    "hostname": "localhost",
+    "user": "",
+    "passwd": "",
+    "db": "jsseo",
+    "port": 4000,
+    "ssl": false,
+    "certfile": "path/to/the/crt/file",
+    "keyfile": "path/to/the/key/file"
+}
