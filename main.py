@@ -122,8 +122,10 @@ class InstallHandler(tornado.web.RequestHandler):
                 config['installed'] = True
 
             except Exception, e:
-                self.write(('Could not connect to database. '
-                    'Check your settings and try again.'))
+                message = ('Could not connect to database. '
+                    'Check your settings and try again.')
+                logger.error(message)
+                self.write(message)
                 self.write(str(traceback.format_exc()))
 
 class ApiHandler(JsSeoHandler):
@@ -151,6 +153,8 @@ class ApiHandler(JsSeoHandler):
                 self.write(json_output(result))
         except tornado.web.MissingArgumentError, e:
             self.missing_argument_error(str(e))
+        except Exception, e:
+            logger.error('Api error', hostname, exc_info=True)
 
     def post(self, path):
         try:
@@ -184,25 +188,30 @@ class ApiHandler(JsSeoHandler):
 
         except tornado.web.MissingArgumentError, e:
             self.missing_argument_error(str(e))
+        except Exception, e:
+            logger.error('Api error', exc_info=True)
 
 class PageHandler(JsSeoHandler):
     def get(self, url):
-        self.set_header('content-type', 'text/html')
-        if not is_valid_url(url):
-            self.send_error(400)
-            return
+        try:
+            self.set_header('content-type', 'text/html')
+            if not is_valid_url(url):
+                self.send_error(400)
+                return
 
-        url = parse_url(url)
-        content = db.get_one('''
-        select page_content from page
-        where
-        page_path = %s and
-        site_hostname = %s
-        ''', (url.path, url.origin))
-        if content == None:
-            self.set_error(502)
-        else:
-            self.write(content)
+            url = parse_url(url)
+            content = db.get_one('''
+            select page_content from page
+            where
+            page_path = %s and
+            site_hostname = %s
+            ''', (url.path, url.origin))
+            if content is None:
+                self.set_error(502)
+            else:
+                self.write(content)
+        except Exception, e:
+            logger.error('Error getting page for crawler', exc_info=True)
 
     def post(self, url):
         try:
@@ -255,23 +264,29 @@ class PageHandler(JsSeoHandler):
             self.missing_argument_error(str(e))
 
         except Exception, e:
-            print str(e)
+            logger.error('Error caching page', exc_info=True)
             self.write(json_output({
                 'message': str(e)
                 }))
 
     def delete(self, url):
-        self.set_header('content-type', 'application/json')
-        urlobj = parse_url(url)
-        self.set_header('access-control-allow-origin', urlobj.origin)
-        db.put('''
-        delete from page
-        where page_path = %s
-        and
-        site_hostname = %s''', (urlobj.path, urlobj.origin))
-        self.write(json_output({
-            'message': 'successfully deleted'
-            }))
+        try:
+            self.set_header('content-type', 'application/json')
+            urlobj = parse_url(url)
+            self.set_header('access-control-allow-origin', urlobj.origin)
+            db.put('''
+            delete from page
+            where page_path = %s
+            and
+            site_hostname = %s''', (urlobj.path, urlobj.origin))
+            self.write(json_output({
+                'message': 'successfully deleted'
+                }))
+        except Exception, e:
+            logger.error('Error deleting page', exc_info=True)
+            self.write(json_output({
+                'message': str(e)
+                }))
 
 settings = {
     #'default_handler_class': ErrorHandler,

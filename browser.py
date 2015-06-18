@@ -10,6 +10,7 @@ def kill_process(pid):
     try:
         os.kill(int(pid), signal.SIGTERM)
     except OSError as ex:
+        print str(ex)
         os.kill(int(pid), signal.SIGKILL)
 
 def start_chrome(url):
