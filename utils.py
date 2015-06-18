@@ -1,5 +1,8 @@
+import tornado.web
+import mysqldbhelper
 from bs4 import BeautifulSoup
 from urlparse import urlparse
+from config import config
 import re
 
 def remove_script_tags(html):
@@ -48,3 +51,18 @@ assert(parse_url('http://testsite.com/').path == '/')
 assert(parse_url('http://testsite.com/home').path == '/home')
 assert(parse_url('http://testsite.com/home/').path == '/home/')
 
+class JsSeoHandler(tornado.web.RequestHandler):
+    def missing_argument_error(self, message):
+        self.set_header('content-type', 'application/json')
+        self.set_status(400)
+        self.write(json_output({
+            'status': 400,
+            'message': message
+            }))
+
+def connect_to_database():
+    db = mysqldbhelper.DatabaseConnection(config['hostname'],
+                        user=config['username'],
+                        passwd=config['password'],
+                        db=config['database'])
+    return db

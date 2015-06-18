@@ -7,23 +7,14 @@ import hashlib
 import mysqldbhelper
 import datetime
 import json
+from config import config
 import logging
 from logging.handlers import RotatingFileHandler
+from utils import JsSeoHandler
 import utils
 
-with open('config.json') as f:
-    config_text = f.read()
-config = json.loads(config_text)
-
-def connect_to_database():
-    db = mysqldbhelper.DatabaseConnection(config['hostname'],
-                        user=config['username'],
-                        passwd=config['password'],
-                        db=config['database'])
-    return db
-
 if config['installed']:
-    db = connect_to_database()
+    db = utils.connect_to_database()
 
 # setup logging
 logging.basicConfig(level=logging.INFO)
@@ -37,15 +28,6 @@ logger.addHandler(handler)
 json_output = mysqldbhelper.json_output
 
 default_expiry_time = 86400
-
-class JsSeoHandler(tornado.web.RequestHandler):
-    def missing_argument_error(self, message):
-        self.set_header('content-type', 'application/json')
-        self.set_status(400)
-        self.write(json_output({
-            'status': 400,
-            'message': message
-            }))
 
 class InstallHandler(tornado.web.RequestHandler):
     def get(self):
@@ -143,27 +125,6 @@ class ApiHandler(JsSeoHandler):
             logger.error('Api error', exc_info=True)
 
 class PageHandler(JsSeoHandler):
-    def get(self, url):
-        try:
-            self.set_header('content-type', 'text/html')
-            if not utils.is_valid_url(url):
-                self.send_error(400)
-                return
-
-            url = utils.parse_url(url)
-            content = db.get_one('''
-            select page_content from page
-            where
-            page_path = %s and
-            site_hostname = %s
-            ''', (url.path, url.origin))
-            if content is None:
-                self.set_error(502)
-            else:
-                self.write(content)
-        except Exception, e:
-            logger.error('Error getting page for crawler', exc_info=True)
-
     def post(self, url):
         try:
             print 'Caching:', url
@@ -256,7 +217,7 @@ application = tornado.web.Application([
     ], **settings)
 
 if __name__ == "__main__":
-    port = config['port']
+    port = config['caching_port']
     if config['ssl']:
         server = HTTPServer(application, ssl_options = {
             'certfile': os.path.join(config.certfile),
