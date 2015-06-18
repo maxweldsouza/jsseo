@@ -116,7 +116,7 @@ class InstallHandler(tornado.web.RequestHandler):
                     raise Exception('Test query did not run')
 
                 f = open('config.json', 'w')
-                f.write(json.dumps(config, indent=4))
+                f.write(json.dumps(config, indent=4, sort_keys=True))
                 self.write('Installation complete')
 
                 config['installed'] = True
@@ -219,7 +219,8 @@ class PageHandler(JsSeoHandler):
             self.set_header('content-type', 'application/json')
 
             content = self.get_argument('content')
-            content = remove_script_tags(content)
+            if config['remove_scripts']:
+                content = remove_script_tags(content)
             content = content.encode('utf-8')
             hsh = hashlib.sha1(content).hexdigest()
 

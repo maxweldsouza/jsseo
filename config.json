@@ -1,13 +1,12 @@
 {
-    "username": "root", 
+    "remove_scripts": true,
     "certfile": "path/to/the/crt/file", 
     "database": "jsseo", 
     "hostname": "localhost", 
-    "db": "jsseo", 
     "installed": true, 
-    "ssl": false, 
-    "user": "", 
-    "password": "dttmw5d", 
     "keyfile": "path/to/the/key/file", 
+    "password": "dttmw5d", 
     "port": 4000
+    "ssl": false, 
+    "username": "root", 
 }
