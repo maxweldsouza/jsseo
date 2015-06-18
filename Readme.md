@@ -1,4 +1,4 @@
-JsSeo
+jsSeo
 =====
 
 A way to render web pages that are generated on the client

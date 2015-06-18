@@ -4,7 +4,7 @@
     "database": "jsseo", 
     "hostname": "localhost", 
     "db": "jsseo", 
-    "installed": false, 
+    "installed": true, 
     "ssl": false, 
     "user": "", 
     "password": "dttmw5d", 

@@ -10,6 +10,18 @@ import datetime
 import json
 import re
 from bs4 import BeautifulSoup
+import logging
+from logging.handlers import RotatingFileHandler
+
+# setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('jsSeo')
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 
 with open('config.json') as f:
     config_text = f.read()
@@ -23,7 +35,7 @@ def connect_to_database():
     return db
 
 if config['installed']:
-    connect_to_database()
+    db = connect_to_database()
 
 json_output = mysqldbhelper.json_output
 
@@ -161,6 +173,7 @@ class ApiHandler(JsSeoHandler):
                             (path, hostname, default_expiry_time, datetime.datetime.now()))
                         db.save()
                     except Exception, e:
+                        print str(e)
                         db.rollback()
                         #TODO log
 
@@ -188,6 +201,7 @@ class PageHandler(JsSeoHandler):
 
     def post(self, url):
         try:
+            print 'Caching:', url
             self.set_header('content-type', 'application/json')
 
             content = self.get_argument('content')
@@ -279,5 +293,5 @@ if __name__ == "__main__":
         server.listen(port)
     else:
         application.listen(port)
-    print 'JsSeo running on port: ' + str(port)
     tornado.ioloop.IOLoop.instance().start()
+    logger.info('JsSeo running on port: %s', str(port))

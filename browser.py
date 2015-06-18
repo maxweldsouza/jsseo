@@ -3,9 +3,8 @@ import time
 import os
 import signal
 
-def start_browser():
-    '''Run a browser in a subprocess'''
-    return subprocess.Popen(['google-chrome', '--user-agent=jsseobot', 'http://google.com'])
+'''for starting chrome with a custom user agent
+chrome processes should not be running already'''
 
 def kill_process(pid):
     try:
@@ -13,26 +12,29 @@ def kill_process(pid):
     except OSError as ex:
         os.kill(int(pid), signal.SIGKILL)
 
+def start_chrome():
+    '''run a browser in a subprocess'''
+    return subprocess.Popen(['google-chrome', '--user-agent=jsSeobot', 'http://google.com'])
+
 def test():
-    browser = start_browser()
+    chrome = start_chrome()
     time.sleep(20)
-    kill_process(browser.pid)
+    kill_process(chrome.pid)
 
 def chrome_running_instances():
-    print 'killing running chrome instances'
+    '''returns a list of pids of running chrome processes'''
     try:
-        # for user-agent to work any chrome processes should not
-        # already be running
         pids = subprocess.check_output(["pidof", "chrome"])
         pids = pids.split(' ')
-        for pid in pids:
-            kill_process(pid)
         return pids
 
     except subprocess.CalledProcessError:
         return []
 
 def kill_chrome_instances():
+    '''checks for running google-chrome instances every 5 seconds.
+    kills all of them in turn. returns after all instances have
+    closed'''
     while True:
         time.sleep(5)
         for pid in chrome_running_instances():
@@ -41,4 +43,4 @@ def kill_chrome_instances():
             break
 
 kill_chrome_instances()
-start_browser()
+start_chrome()
