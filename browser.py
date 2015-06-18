@@ -12,9 +12,9 @@ def kill_process(pid):
     except OSError as ex:
         os.kill(int(pid), signal.SIGKILL)
 
-def start_chrome():
+def start_chrome(url):
     '''run a browser in a subprocess'''
-    return subprocess.Popen(['google-chrome', '--user-agent=jsSeobot', 'http://google.com'])
+    return subprocess.Popen(['google-chrome', '--user-agent=jsSeoBot', url])
 
 def test():
     chrome = start_chrome()
@@ -43,4 +43,4 @@ def kill_chrome_instances():
             break
 
 kill_chrome_instances()
-start_chrome()
+start_chrome('http://localhost')

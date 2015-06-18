@@ -54,6 +54,11 @@ assert(is_valid_url('https://www.google.com'))
 assert(not is_valid_url('ftp://www.google.com'))
 assert(not is_valid_url('www.google.com'))
 
+def is_valid_path(path):
+    if path == '#':
+        return False
+    return True
+
 def parse_url(url):
     """ Parse urls and return an object with an origin and a path.
     Add trailing slash only to the root url. Root urls are stored
@@ -158,6 +163,7 @@ class ApiHandler(JsSeoHandler):
                 # list of links
                 paths = self.get_argument('paths')
                 paths = paths.split('\n')
+                paths = [x for x in paths if is_valid_path(x)]
                 for path in paths:
                     try:
                         db.start()
@@ -173,9 +179,8 @@ class ApiHandler(JsSeoHandler):
                             (path, hostname, default_expiry_time, datetime.datetime.now()))
                         db.save()
                     except Exception, e:
-                        print str(e)
+                        logger.error('Could not add paths', exc_info=True)
                         db.rollback()
-                        #TODO log
 
         except tornado.web.MissingArgumentError, e:
             self.missing_argument_error(str(e))
