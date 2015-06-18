@@ -5,13 +5,11 @@ import tornado.web
 from tornado.httpserver import HTTPServer
 import hashlib
 import mysqldbhelper
-from urlparse import urlparse
 import datetime
 import json
-import re
-from bs4 import BeautifulSoup
 import logging
 from logging.handlers import RotatingFileHandler
+import utils
 
 with open('config.json') as f:
     config_text = f.read()
@@ -39,52 +37,6 @@ logger.addHandler(handler)
 json_output = mysqldbhelper.json_output
 
 default_expiry_time = 86400
-
-def remove_script_tags(html):
-    soup = BeautifulSoup(html)
-    [s.extract() for s in soup('script')]
-    return soup.prettify()
-
-def is_valid_url(url):
-    return re.match(r'^(?:http|https)://', url)
-
-assert(is_valid_url('http://www.google.com'))
-assert(is_valid_url('https://www.google.com'))
-assert(not is_valid_url('ftp://www.google.com'))
-assert(not is_valid_url('www.google.com'))
-
-def is_valid_path(path):
-    if path == '#':
-        return False
-    return True
-
-def parse_url(url):
-    """ Parse urls and return an object with an origin and a path.
-    Add trailing slash only to the root url. Root urls are stored
-    in the database with path "/" 
-    http://googlewebmastercentral.blogspot.in/2010/04/to-slash-or-not-to-slash.html """
-
-    class UrlObj():
-        def __str__(self):
-            return 'Origin: {0} \n Path: {1}'.format(self.origin, self.path)
-
-    result = UrlObj()
-    urlobj = urlparse(url)
-    origin = urlobj.scheme + '://' + urlobj.netloc
-    path = url[len(origin):]
-    if path == '':
-        path = '/'
-
-    result.origin = origin
-    result.path = path
-    return result
-
-assert(parse_url('http://testsite.com').path == '/')
-assert(parse_url('http://testsite.com/').path == '/')
-assert(parse_url('http://testsite.com?key=value').path == '?key=value')
-assert(parse_url('http://testsite.com/').path == '/')
-assert(parse_url('http://testsite.com/home').path == '/home')
-assert(parse_url('http://testsite.com/home/').path == '/home/')
 
 class JsSeoHandler(tornado.web.RequestHandler):
     def missing_argument_error(self, message):
@@ -166,7 +118,7 @@ class ApiHandler(JsSeoHandler):
                 # list of links
                 paths = self.get_argument('paths')
                 paths = paths.split('\n')
-                paths = [x for x in paths if is_valid_path(x)]
+                paths = [x for x in paths if utils.is_valid_path(x)]
                 for path in paths:
                     try:
                         db.start()
@@ -194,11 +146,11 @@ class PageHandler(JsSeoHandler):
     def get(self, url):
         try:
             self.set_header('content-type', 'text/html')
-            if not is_valid_url(url):
+            if not utils.is_valid_url(url):
                 self.send_error(400)
                 return
 
-            url = parse_url(url)
+            url = utils.parse_url(url)
             content = db.get_one('''
             select page_content from page
             where
@@ -219,11 +171,11 @@ class PageHandler(JsSeoHandler):
 
             content = self.get_argument('content')
             if config['remove_scripts']:
-                content = remove_script_tags(content)
+                content = utils.remove_script_tags(content)
             content = content.encode('utf-8')
             hsh = hashlib.sha1(content).hexdigest()
 
-            urlobj = parse_url(url)
+            urlobj = utils.parse_url(url)
             self.set_header('access-control-allow-origin', urlobj.origin)
 
             current = db.get_one('''
@@ -272,7 +224,7 @@ class PageHandler(JsSeoHandler):
     def delete(self, url):
         try:
             self.set_header('content-type', 'application/json')
-            urlobj = parse_url(url)
+            urlobj = utils.parse_url(url)
             self.set_header('access-control-allow-origin', urlobj.origin)
             db.put('''
             delete from page

@@ -36,7 +36,7 @@ def kill_instances(pids):
         else:
             break
 
-# Chrome
+# Google Chrome
 def start_chrome(url):
     '''run a browser in a subprocess'''
     return subprocess.Popen(['google-chrome', '--user-agent=' + botagent, url])
