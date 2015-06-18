@@ -13,16 +13,6 @@ from bs4 import BeautifulSoup
 import logging
 from logging.handlers import RotatingFileHandler
 
-# setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('jsSeo')
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-
 with open('config.json') as f:
     config_text = f.read()
 config = json.loads(config_text)
@@ -36,6 +26,15 @@ def connect_to_database():
 
 if config['installed']:
     db = connect_to_database()
+
+# setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('jsSeo')
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = RotatingFileHandler(config['logfile'], maxBytes=10*1000*1000, backupCount=5)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 json_output = mysqldbhelper.json_output
 

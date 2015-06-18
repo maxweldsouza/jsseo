@@ -5,6 +5,7 @@
     "hostname": "localhost", 
     "installed": true, 
     "keyfile": "path/to/the/key/file", 
+    "logfile": "jsSeo.log",
     "password": "dttmw5d", 
     "port": 4000
     "ssl": false, 
