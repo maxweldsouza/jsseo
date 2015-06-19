@@ -11,7 +11,7 @@ def start():
     assert('DISPLAY' not in os.environ)
     try:
         os.environ['DISPLAY'] = ':0'
-        process = subprocess.Popen(['ls'])
+        process = subprocess.Popen(['Xvfb', ':0', '-screen', '0', '1024x768x16'])
         XVFB_PID = process.pid
     except OSError, e:
         del os.environ['DISPLAY']
@@ -20,7 +20,7 @@ def start():
         del os.environ['DISPLAY']
         print str(e)
 
-def is__running():
+def is_running():
     return XVFB_PID != None
 
 def close():
