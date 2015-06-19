@@ -2,7 +2,7 @@ import xvfb
 from config import config
 import browser_controller
 
-if config['headless'] and not xvfb.is_running():
+if config['headless'] and not 'DISPLAY' in os.environ:
     xvfb.start()
 
 if config['browser'] == 'chromium':

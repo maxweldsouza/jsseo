@@ -20,9 +20,6 @@ def start():
         del os.environ['DISPLAY']
         print str(e)
 
-def is_running():
-    return XVFB_PID != None
-
 def close():
     processes.kill_process(XVFB_PID)
 
