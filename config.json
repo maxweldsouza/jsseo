@@ -4,6 +4,7 @@
     "caching_port": 4001,
     "certfile": "path/to/the/crt/file", 
     "database": "jsseo", 
+    "headless": false,
     "hostname": "localhost", 
     "installed": true, 
     "keyfile": "path/to/the/key/file", 

@@ -127,7 +127,7 @@ class ApiHandler(JsSeoHandler):
 class PageHandler(JsSeoHandler):
     def post(self, url):
         try:
-            print 'Caching:', url
+            logger.info('Caching:', url)
             self.set_header('content-type', 'application/json')
 
             content = self.get_argument('content')
