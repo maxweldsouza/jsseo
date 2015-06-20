@@ -1,6 +1,7 @@
 import os
 import time
 import subprocess
+import signal
 
 def kill_process(pid):
     try:
