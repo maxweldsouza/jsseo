@@ -27,6 +27,7 @@ class PageHandler(JsSeoHandler):
     def get(self, url):
         '''deliver pages to bots'''
         try:
+            logger.info('Serving %s to %s', url, self.request.headers['User-Agent'])
             self.set_header('content-type', 'text/html')
             if not utils.is_valid_url(url):
                 self.send_error(400)

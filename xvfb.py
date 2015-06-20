@@ -1,6 +1,18 @@
 import os
 import subprocess
 import processes
+import logging
+from logging.handlers import RotatingFileHandler
+
+# setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('jsSeo')
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 
 # Xvfb
 class Xvfb():
@@ -15,14 +27,14 @@ class Xvfb():
             return_code = self.process.poll()
 
             if return_code is not None:
-                print 'Xvfb did not start'
+                logger.error('Xvfb did not start')
             else:
                 self.display = displayno
 
         except OSError, e:
-            print 'Check whether Xvfb is installed'
+            logger.error('Check whether Xvfb is installed', exc_info=True)
         except subprocess.CalledProcessError, e:
-            print str(e)
+            logger.error('CalledProcessError', exc_info=True)
 
     def stop():
         if self.process is not None:

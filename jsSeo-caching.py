@@ -115,6 +115,7 @@ class ApiHandler(JsSeoHandler):
                             (%s, %s, %s, %s)''',
                             (path, hostname, default_expiry_time, datetime.datetime.now()))
                         db.save()
+                        logger.info('Adding path: %s%s', hostname, path)
                     except Exception, e:
                         logger.error('Could not add paths', exc_info=True)
                         db.rollback()
@@ -147,6 +148,7 @@ class PageHandler(JsSeoHandler):
 
             expires = datetime.datetime.now() + datetime.timedelta(0, default_expiry_time) #secs
 
+            logger.info('Saving page: %s', url)
             if not current:
                 # TODO paths should always be present beforehand
                 db.put('''
@@ -187,6 +189,7 @@ class PageHandler(JsSeoHandler):
             self.set_header('content-type', 'application/json')
             urlobj = utils.parse_url(url)
             self.set_header('access-control-allow-origin', urlobj.origin)
+            logger.info('Deleting page: %s', url)
             db.put('''
             delete from page
             where page_path = %s
