@@ -43,7 +43,7 @@ def start_chrome_like_browser(url, name, display):
 class Browser():
     def __init__(self):
         displays = active_displays()
-        if displays is None:
+        if not displays:
             if config['headless']:
                 logger.info('Xvfb is not already running. Starting xvfb')
                 xvfb.start()

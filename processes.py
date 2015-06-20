@@ -17,7 +17,7 @@ def running_instances(name):
         processes = output.split('\n')
         processes.pop() # remove empty last line
         processes = [x.split() for x in processes]
-        # first value is the pid, last is the process name
+        # first value is the pid, process names may have spaces in them
         pids = [x[1] for x in processes if name in x[10]]
         return pids
 
