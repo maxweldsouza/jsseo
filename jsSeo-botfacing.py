@@ -71,4 +71,4 @@ if __name__ == "__main__":
     else:
         application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
-    logger.info('JsSeo running on port: %s', str(port))
+    logger.info('JsSeo bot facing server running on port: %s', str(port))
