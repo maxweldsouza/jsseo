@@ -1,7 +1,6 @@
 import xvfb
 from config import config
 import browser_controller
-import fnmatch
 import os
 
 if config['browser'] == 'chromium':

@@ -3,6 +3,7 @@ import os
 import signal
 from config import config
 import processes
+import fnmatch
 
 '''for starting chrome with a custom user agent
 chrome processes should not be running already'''
@@ -31,12 +32,13 @@ def start_chrome_like_browser(url, name):
 
 class Browser():
     def __init__(self):
-        if config['headless']:
-            displays = active_displays()
-            if displays == None:
-                xvfb.start()
-            else:
-                DISPLAY = displays[0]
+        displays = active_displays()
+        if displays is not None:
+            DISPLAY = displays[0]
+
+        if config['headless'] and displays == None:
+            xvfb.start()
+            DISPLAY = xvfb.display
 
     def start(self, url):
         pass
