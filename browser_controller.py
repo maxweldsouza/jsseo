@@ -64,11 +64,9 @@ class Browser():
             running = self.running_instances()
             if len(running) == 0:
                 return
-            try:
-                for process in running:
-                    processes.kill_process(process)
-            except OSError:
-                pass
+            for process in running:
+                processes.kill_process(process)
+            exceass
             # give em some time
             time.sleep(5)
 
