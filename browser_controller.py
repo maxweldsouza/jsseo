@@ -18,24 +18,25 @@ def active_displays():
     locks = [lock for lock in locks if os.path.isfile(os.path.join('/tmp', lock))]
     # get the display no, .X11-lock => 11
     displays = [int(lock.split('X')[1].split('-')[0]) for lock in locks]
+    displays = [':' + str(x) for x in displays]
     return displays
 
-def start_chrome_like_browser(url, name):
+def start_chrome_like_browser(url, name, display):
     '''run a browser in a subprocess'''
     command = [name, '--user-agent=' + BOT_USER_AGENT, url]
     if config['headless']:
-        os.environ['DISPLAY'] = DISPLAY
-    return subprocess.Popen(command)
+        os.environ['DISPLAY'] = display
+    return subprocess.Popen(command, shell=True)
 
 class Browser():
     def __init__(self):
         displays = active_displays()
         if displays is not None:
-            DISPLAY = displays[0]
+            self.display = displays[0]
 
-        if config['headless'] and displays == None:
+        if config['headless'] and displays is None:
             xvfb.start()
-            DISPLAY = xvfb.display
+            self.display = xvfb.display
 
     def start(self, url):
         pass
@@ -50,7 +51,7 @@ class GoogleChrome(Browser):
         Browser.__init__(self)
 
     def start(self, url):
-        return start_chrome_like_browser(url, self.name)
+        return start_chrome_like_browser(url, self.name, self.display)
 
 class Chromium(Browser):
     def __init__(self):
@@ -58,4 +59,4 @@ class Chromium(Browser):
         Browser.__init__(self)
 
     def start(self, url):
-        return start_chrome_like_browser(url, self.name)
+        return start_chrome_like_browser(url, self.name, self.display)
