@@ -22,13 +22,10 @@ def active_displays():
 
 def start_chrome_like_browser(url, name):
     '''run a browser in a subprocess'''
-    command = ' '.join([name, '--user-agent=' + BOT_USER_AGENT, url])
+    command = [name, '--user-agent=' + BOT_USER_AGENT, url]
     if config['headless']:
-        env = os.environ.copy()
-        env['DISPLAY'] = ':' + DISPLAY
-    else:
-        env=None
-    return subprocess.Popen(command, shell=True, env=env)
+        os.environ['DISPLAY'] = DISPLAY
+    return subprocess.Popen(command)
 
 class Browser():
     def __init__(self):
