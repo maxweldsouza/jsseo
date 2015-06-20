@@ -115,7 +115,6 @@ class ApiHandler(JsSeoHandler):
                             (%s, %s, %s, %s)''',
                             (path, hostname, default_expiry_time, datetime.datetime.now()))
                         db.save()
-                        logger.info('Adding path: %s%s', hostname, path)
                     except Exception, e:
                         logger.error('Could not add paths', exc_info=True)
                         db.rollback()

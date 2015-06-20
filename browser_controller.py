@@ -33,7 +33,7 @@ def active_displays():
 
 def start_chrome_like_browser(url, name, display):
     '''run a browser in a subprocess'''
-    command = [name, '--user-agent=' + BOT_USER_AGENT, url]
+    command = ' '.join([name, '--user-agent=' + BOT_USER_AGENT, url])
     if config['headless']:
         os.environ['DISPLAY'] = display
     logger.info('Starting %s on display %s with command: %s', name, display, command)
