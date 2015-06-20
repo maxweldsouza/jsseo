@@ -42,13 +42,15 @@ def start_chrome_like_browser(url, name, display):
 class Browser():
     def __init__(self):
         displays = active_displays()
-        if displays is not None:
+        if displays is None:
+            if config['headless']:
+                logger.info('Xvfb is not already running. Starting xvfb')
+                xvfb.start()
+                self.display = xvfb.display
+            else:
+                logger.error('Headless mode is off in config but there are no displays')
+        else:
             self.display = displays[0]
-
-        if config['headless'] and displays is None:
-            logger.info('xvfb is not already running. starting xvfb')
-            xvfb.start()
-            self.display = xvfb.display
 
     def start(self, url):
         pass
