@@ -12,7 +12,7 @@ def kill_process(pid):
 def running_instances(name):
     '''returns a list of pids of running chrome processes'''
     try:
-        output = subproces.Popen(['ps', 'aux'], stdout=subprocess.PIPE).communicate()[0]
+        output = subprocess.Popen(['ps', 'aux'], stdout=subprocess.PIPE).communicate()[0]
         processes = ouput.split('\n')
         processes.pop() # remove empty last line
         processes = [x.split() for x in processes]

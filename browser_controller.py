@@ -58,10 +58,15 @@ class Browser():
     def running_instances(self):
         return processes.running_instances(self.name)
     def kill_all(self):
-        running = self.running_instances()
-        while len(running) > 0:
-            for process in runnging:
-                processes.kill_process(process)
+        while True:
+            running = self.running_instances()
+            if len(running) == 0:
+                return
+            try:
+                for process in running:
+                    processes.kill_process(process)
+            except OSError:
+                pass
             # give em some time
             time.sleep(5)
 
