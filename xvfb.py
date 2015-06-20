@@ -2,25 +2,27 @@ import os
 import subprocess
 import processes
 
-XVFB_PID = None
-
 # Xvfb
-def start():
-    '''start xvfb. this should be called only if the system has
-    no display servers'''
-    assert('DISPLAY' not in os.environ)
-    try:
-        os.environ['DISPLAY'] = ':0'
-        process = subprocess.Popen(['Xvfb', ':0', '-screen', '0', '1024x768x16'])
-        XVFB_PID = process.pid
-    except OSError, e:
-        del os.environ['DISPLAY']
-        print 'Check whether Xvfb is installed'
-    except subprocess.CalledProcessError, e:
-        del os.environ['DISPLAY']
-        print str(e)
+class Xvfb():
+    def start():
+        '''start xvfb. this will be called only if the system has
+        no display servers'''
+        assert('DISPLAY' not in os.environ)
+        try:
+            self.process = subprocess.Popen(['Xvfb', ':0', '-screen', '0', '1024x768x16'])
+            time.sleep(0.2)
+            return_code = self.process.poll()
 
-def close():
-    processes.kill_process(XVFB_PID)
+            if return_code is not None:
+                print 'Xvfb did not start'
 
-print XVFB_PID
+        except OSError, e:
+            print 'Check whether Xvfb is installed'
+        except subprocess.CalledProcessError, e:
+            print str(e)
+
+    def stop():
+        if self.process is not None:
+            self.process.kill()
+            self.process.wait()
+            self.process = None
