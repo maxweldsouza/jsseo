@@ -1,3 +1,4 @@
+import time
 import subprocess
 import os
 import signal
@@ -57,7 +58,12 @@ class Browser():
     def running_instances(self):
         return processes.running_instances(self.name)
     def kill_all(self):
-        processes.kill_instances(self.running_instances())
+        running = self.running_instances()
+        while len(running) > 0:
+            for process in runnging:
+                processes.kill_process(process)
+            # give em some time
+            time.sleep(5)
 
 class GoogleChrome(Browser):
     def __init__(self):
