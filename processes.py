@@ -14,11 +14,11 @@ def running_instances(name):
     '''returns a list of pids of running chrome processes'''
     try:
         output = subprocess.Popen(['ps', 'aux'], stdout=subprocess.PIPE).communicate()[0]
-        processes = ouput.split('\n')
+        processes = output.split('\n')
         processes.pop() # remove empty last line
         processes = [x.split() for x in processes]
         # first value is the pid, last is the process name
-        pids = [x[1] for x in processes if name in x[-1]]
+        pids = [x[1] for x in processes if x[-1].startswith(name)]
         return pids
 
     except subprocess.CalledProcessError:
