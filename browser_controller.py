@@ -6,6 +6,7 @@ from config import config
 import processes
 import fnmatch
 import logging
+from xvfb import Xvfb
 from logging.handlers import RotatingFileHandler
 
 '''for starting chrome with a custom user agent
@@ -46,6 +47,7 @@ class Browser():
         if not displays:
             if config['headless']:
                 logger.info('Xvfb is not already running. Starting xvfb')
+                xvfb = Xvfb()
                 xvfb.start()
                 self.display = xvfb.display
             else:

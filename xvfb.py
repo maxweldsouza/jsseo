@@ -16,7 +16,7 @@ logger.addHandler(handler)
 
 # Xvfb
 class Xvfb():
-    def start():
+    def start(self):
         '''start xvfb. this will be called only if the system has
         no display servers'''
         assert('DISPLAY' not in os.environ)
@@ -36,7 +36,7 @@ class Xvfb():
         except subprocess.CalledProcessError, e:
             logger.error('CalledProcessError', exc_info=True)
 
-    def stop():
+    def stop(self):
         if self.process is not None:
             self.process.kill()
             self.process.wait()
