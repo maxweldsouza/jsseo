@@ -18,7 +18,7 @@ def running_instances(name):
         processes.pop() # remove empty last line
         processes = [x.split() for x in processes]
         # first value is the pid, last is the process name
-        pids = [x[1] for x in processes if x[-1].startswith(name)]
+        pids = [x[1] for x in processes if name in x[10]]
         return pids
 
     except subprocess.CalledProcessError:
