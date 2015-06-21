@@ -1,3 +1,4 @@
+from collections import namedtuple
 import tornado.web
 import mysqldbhelper
 from bs4 import BeautifulSoup
@@ -33,22 +34,15 @@ def parse_url(url):
     Add trailing slash only to the root url. Root urls are stored
     in the database with path "/" 
     http://googlewebmastercentral.blogspot.in/2010/04/to-slash-or-not-to-slash.html """
-    #TODO named tuple
 
-    class UrlObj():
-        def __str__(self):
-            return 'Origin: {0} \n Path: {1}'.format(self.origin, self.path)
-
-    result = UrlObj()
     urlobj = urlparse(url)
     origin = urlobj.scheme + '://' + urlobj.netloc
     path = url[len(origin):]
     if path == '':
         path = '/'
 
-    result.origin = origin
-    result.path = path
-    return result
+    Url = namedtuple('Url', ['origin', 'path'])
+    return Url(origin=origin, path=path)
 
 assert(parse_url('http://testsite.com').path == '/')
 assert(parse_url('http://testsite.com/').path == '/')

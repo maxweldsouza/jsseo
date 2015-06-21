@@ -43,16 +43,18 @@ if config['browser'] == 'firefox':
 elif config['browser'] == 'google-chrome':
     browser = webdriver.Firefox()
 
-while True:
-    url = 'http://localhost:8000/test.html'
+url = 'http://localhost:8000/test.html'
+while url:
     browser.get(url)
     links = browser.find_elements_by_tag_name('a')
     links = [link.get_attribute('href') for link in links]
     # get only internal links and converts absolute links to relative
     links = [absolute_to_relative(link, url) for link in links if is_internal_url(link, url)]
-    print links
-    break
-    datastore.save_page(browser.page_source)
-    datastore.add_paths(paths)
+
+    site, path = utils.parse_url(url)
+    datastore.add_paths(links, site)
+    datastore.save_page(url, browser.page_source)
+
+    url = datastore.next_url(site)
 
 browser.close()
