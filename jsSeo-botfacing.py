@@ -23,6 +23,39 @@ handler = RotatingFileHandler(config['logfile'], maxBytes=10*1000*1000, backupCo
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+class InstallHandler(tornado.web.RequestHandler):
+    def get(self):
+        if not config['installed']:
+            self.render('install.html')
+        else:
+            self.send_error(400)
+
+    def post(self):
+        #TODO copy sample_config.json to config.json
+        if not config['installed']:
+            config['database'] = self.get_argument('database')
+            config['username'] = self.get_argument('username')
+            config['password'] = self.get_argument('password')
+            config['hostname'] = self.get_argument('hostname')
+            try:
+                db = connect_to_database()
+                check = db.get_one('SELECT 1', ())
+                if not check:
+                    raise Exception('Test query did not run')
+
+                f = open('config.json', 'w')
+                f.write(json.dumps(config, indent=4, sort_keys=True))
+                self.write('Installation complete')
+
+                config['installed'] = True
+
+            except Exception, e:
+                message = ('Could not connect to database. '
+                    'Check your settings and try again.')
+                logger.error(message)
+                self.write(message)
+                self.write(str(traceback.format_exc()))
+
 class PageHandler(JsSeoHandler):
     def get(self, url):
         '''deliver pages to bots'''
@@ -33,13 +66,8 @@ class PageHandler(JsSeoHandler):
                 self.send_error(400)
                 return
 
-            url = utils.parse_url(url)
-            content = db.get_one('''
-            select page_content from page
-            where
-            page_path = %s and
-            site_hostname = %s
-            ''', (url.path, url.origin))
+            content = get_page()
+
             if content is None:
                 self.set_error(502)
             else:
@@ -57,11 +85,12 @@ settings = {
 }
 
 application = tornado.web.Application([
+    (r"/install", InstallHandler),
     (r"/(.*)", PageHandler),
     ], **settings)
 
 if __name__ == "__main__":
-    port = config['botfacing_port']
+    port = config['port']
     if config['ssl']:
         server = HTTPServer(application, ssl_options = {
             'certfile': os.path.join(config.certfile),

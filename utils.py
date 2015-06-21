@@ -5,6 +5,11 @@ from urlparse import urlparse
 from config import config
 import re
 
+def get_links(html, hostname):
+    '''returns a list of urls in a hrefs. if a hostname is specified
+    it also returns internal absolute paths converting them to relative'''
+    pass
+
 def remove_script_tags(html):
     soup = BeautifulSoup(html)
     [s.extract() for s in soup('script')]
@@ -28,6 +33,7 @@ def parse_url(url):
     Add trailing slash only to the root url. Root urls are stored
     in the database with path "/" 
     http://googlewebmastercentral.blogspot.in/2010/04/to-slash-or-not-to-slash.html """
+    #TODO named tuple
 
     class UrlObj():
         def __str__(self):

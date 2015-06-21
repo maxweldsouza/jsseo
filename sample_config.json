@@ -1,15 +1,13 @@
 {
-    "botfacing_port": 4000,
-    "browser": "chromium",
-    "caching_port": 4001,
+    "port": 4000,
+    "browser": "firefox",
     "certfile": "path/to/the/crt/file", 
     "database": "jsseo", 
-    "headless": false,
     "hostname": "localhost", 
     "installed": true, 
     "keyfile": "path/to/the/key/file", 
     "logfile": "jsSeo.log",
-    "password": "dttmw5d", 
+    "password": "password", 
     "remove_scripts": true,
     "ssl": false, 
     "username": "root"
