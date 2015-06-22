@@ -7,17 +7,13 @@ side for web robots.
 
 # Installation
 
-Setting Options
-jsSeo('setoption', 'jsSeoUrl', 'http://localhost:4000');
-
 ## Configuration Options
 
 These options can be changed in config.json. The database configuration
 options are set during the installation process
 
-botfacing_port:
 browser: google-chrome or chromium
-caching_port:
+port:
 
 certfile: path to the crt file for ssl
 keyfile: path to the key file for ssl
