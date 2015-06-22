@@ -2,7 +2,10 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 from config import config
 from mysql_wrapper import MySqlWrapper
+import logging
 import utils
+
+logger = logging.getLogger(__name__)
 
 class InvalidUrlError(Exception): pass
 
@@ -45,6 +48,7 @@ elif config['browser'] == 'google-chrome':
 
 url = 'http://localhost:8000/test.html'
 while url:
+    logger.info('Caching %s', url)
     browser.get(url)
     links = browser.find_elements_by_tag_name('a')
     links = [link.get_attribute('href') for link in links]
