@@ -30,7 +30,7 @@ class MySqlWrapper():
         '''saves the dom for the path'''
         try:
             urlobj = utils.parse_url(url)
-            hsh = hashlib.sha1(html).hexdigest()
+            hsh = hashlib.sha1(html.encode('utf-8')).hexdigest()
 
             current = self.db.get_one('''
             select page_id, page_sha1 from page

@@ -1,7 +1,6 @@
 from collections import namedtuple
 import tornado.web
 import mysqldbhelper
-from bs4 import BeautifulSoup
 from urlparse import urlparse
 from config import config
 import re
@@ -10,11 +9,6 @@ def get_links(html, hostname):
     '''returns a list of urls in a hrefs. if a hostname is specified
     it also returns internal absolute paths converting them to relative'''
     pass
-
-def remove_script_tags(html):
-    soup = BeautifulSoup(html)
-    [s.extract() for s in soup('script')]
-    return soup.prettify()
 
 def is_valid_url(url):
     return re.match(r'^(?:http|https)://', url)

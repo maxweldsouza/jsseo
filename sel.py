@@ -3,6 +3,7 @@ from selenium import webdriver
 import selenium
 from config import config
 from mysql_wrapper import MySqlWrapper
+from bs4 import BeautifulSoup
 import logging
 import utils
 
