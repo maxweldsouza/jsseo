@@ -1,5 +1,6 @@
 from pyvirtualdisplay import Display
 from selenium import webdriver
+import selenium
 from config import config
 from mysql_wrapper import MySqlWrapper
 import logging
@@ -45,7 +46,7 @@ def create_browser():
     if config['browser'] == 'firefox':
         profile = webdriver.FirefoxProfile()
         profile.set_preference('permissions.default.image', 2)
-        browser = webdriver.Firefox(firefox_profile=profile)
+        browser = webdriver.Firefox(profile)
     elif config['browser'] == 'chrome':
         browser = webdriver.Chrome()
     elif config['browser'] == 'ie':
@@ -56,6 +57,8 @@ def create_browser():
         browser = webdriver.PhantomJS()
     else:
         raise Exception('Incorrect browser in config')
+    browser.set_page_load_timeout(config['timeout'])
+    browser.set_script_timeout(config['timeout'])
     return browser
 
 browser = create_browser()
@@ -64,6 +67,7 @@ url = 'http://localhost:8900'
 def process_page(browser, url):
     logging.info('Caching %s', url)
     browser.get(url)
+
     links = browser.find_elements_by_tag_name('a')
     links = [link.get_attribute('href') for link in links]
     # get only internal links and converts absolute links to relative
@@ -75,9 +79,11 @@ while url:
     site, path = utils.parse_url(url)
     try:
         links, source = process_page(browser, url)
-    except UnexpectedAlertPresentException, e:
+    except selenium.common.exceptions.UnexpectedAlertPresentException, e:
         browser.close()
         browser = create_browser()
+        continue
+    except selenium.common.exceptions.TimeoutException:
         continue
 
     datastore.add_paths(site, links)
