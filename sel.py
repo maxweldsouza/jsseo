@@ -72,7 +72,7 @@ def process_page(browser, url):
     links = browser.find_elements_by_tag_name('a')
     links = [link.get_attribute('href') for link in links]
     # get only internal links and converts absolute links to relative
-    links = [absolute_to_relative(link, url) for link in links if is_internal_url(link, url)]
+    links = set([absolute_to_relative(link, url) for link in links if is_internal_url(link, url)])
 
     return links, browser.page_source
 
