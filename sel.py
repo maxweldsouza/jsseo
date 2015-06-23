@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 import logging
 import utils
 
-logging.basicConfig(filename='caching.log', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        filename='caching.log', level=logging.INFO)
 
 class InvalidUrlError(Exception): pass
 
