@@ -3,6 +3,7 @@ import tornado.ioloop
 import tornado.web
 from tornado.httpserver import HTTPServer
 from config import config
+from mysql_wrapper import MySqlWrapper
 import logging
 from logging.handlers import RotatingFileHandler
 from utils import JsSeoHandler
@@ -22,6 +23,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+datastore = MySqlWrapper()
 
 class InstallHandler(tornado.web.RequestHandler):
     def get(self):
@@ -66,7 +69,7 @@ class PageHandler(JsSeoHandler):
                 self.send_error(400)
                 return
 
-            content = get_page()
+            content = datastore.get_page(url)
 
             if content is None:
                 self.set_error(502)
