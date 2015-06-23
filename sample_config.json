@@ -1,14 +1,15 @@
 {
     "port": 4000,
     "browser": "firefox",
-    "certfile": "path/to/the/crt/file", 
-    "database": "jsseo", 
-    "hostname": "localhost", 
-    "installed": true, 
-    "keyfile": "path/to/the/key/file", 
+    "certfile": "path/to/the/crt/file",
+    "database": "jsseo",
+    "hostname": "localhost",
+    "installed": true,
+    "keyfile": "path/to/the/key/file",
     "logfile": "jsSeo.log",
-    "password": "password", 
+    "password": "password",
     "remove_scripts": true,
-    "ssl": false, 
+    "ssl": false,
+    "timeout": 30,
     "username": "root"
 }
