@@ -62,7 +62,7 @@ def create_browser():
     return browser
 
 browser = create_browser()
-url = 'http://localhost:8900'
+url = 'http://localhost'
 
 def process_page(browser, url):
     logging.info('Caching %s', url)
@@ -84,13 +84,18 @@ while url:
         browser = create_browser()
         continue
     except selenium.common.exceptions.TimeoutException:
+        logger.info('Timeout on page %s', url)
         continue
 
     datastore.add_paths(site, links)
     logging.info('Adding paths %s', links)
 
+    soup = BeautifulSoup(source)
     if config['remove_scripts']:
-        source = utils.remove_script_tags(source)
+        [s.extract() for s in soup('script')]
+    # this will convert page source to utf-8 irrespective of
+    # its character set. the charset meta tag will also be changed
+    source = soup.prettify()
 
     datastore.save_page(url, source)
 
