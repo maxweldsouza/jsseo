@@ -4,8 +4,6 @@ from config import config
 import logging
 import utils
 
-logger = logging.getLogger(__name__)
-
 # TODO shouldnt be here
 default_expiry_time = 86400
 
@@ -26,7 +24,7 @@ class MySqlWrapper():
             ''', (url.path, url.origin))
             return content
         except Exception, e:
-            logger.error('Could not get page', exc_info=True)
+            logging.error('Could not get page', exc_info=True)
 
     def save_page(self, url, html):
         '''saves the dom for the path'''
@@ -42,7 +40,7 @@ class MySqlWrapper():
 
             expires = datetime.datetime.now() + datetime.timedelta(0, default_expiry_time) #secs
 
-            logger.info('Saving page: %s', url)
+            logging.info('Saving page: %s', url)
             if not current:
                 # TODO paths should always be present beforehand
                 self.db.put('''
@@ -62,7 +60,7 @@ class MySqlWrapper():
                 page_id = %s
                 ''', (urlobj.origin, html, hsh, expires, default_expiry_time, pageid))
         except Exception, e:
-            logger.error('Could not save page', exc_info=True)
+            logging.error('Could not save page', exc_info=True)
 
     def delete_page(self, url):
         try:
@@ -73,7 +71,7 @@ class MySqlWrapper():
             and
             site_hostname = %s''', (urlobj.path, urlobj.origin))
         except Exception, e:
-            logger.error('Could not delete page', exc_info=True)
+            logging.error('Could not delete page', exc_info=True)
 
     def next_url(self, hostname):
         '''gets the url of the next page to be cached. returns
@@ -87,7 +85,7 @@ class MySqlWrapper():
             or page_content is null)''', (hostname,))
             return url
         except Exception, e:
-            logger.error('Could not get next url', exc_info=True)
+            logging.error('Could not get next url', exc_info=True)
 
     def add_paths(self, hostname, urls):
         '''adds paths to the database'''
@@ -106,5 +104,5 @@ class MySqlWrapper():
                     (path, hostname, default_expiry_time, datetime.datetime.now()))
                 self.db.save()
             except Exception, e:
-                logger.error('Could not add paths', exc_info=True)
+                logging.error('Could not add paths', exc_info=True)
                 self.db.rollback()

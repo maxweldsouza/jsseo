@@ -5,7 +5,7 @@ from mysql_wrapper import MySqlWrapper
 import logging
 import utils
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(filename='caching.log', level=logging.INFO)
 
 class InvalidUrlError(Exception): pass
 
@@ -44,11 +44,17 @@ datastore = MySqlWrapper()
 if config['browser'] == 'firefox':
     browser = webdriver.Firefox()
 elif config['browser'] == 'google-chrome':
-    browser = webdriver.Firefox()
+    browser = webdriver.Chrome()
+elif config['browser'] == 'ie':
+    browser = webdriver.Ie()
+elif config['browser'] == 'opera':
+    browser = webdriver.Opera()
+elif config['browser'] == 'phantomjs':
+    browser = webdriver.PhantomJS()
 
-url = 'http://localhost:8000/test.html'
+url = 'http://localhost:8900'
 while url:
-    logger.info('Caching %s', url)
+    logging.info('Caching %s', url)
     browser.get(url)
     links = browser.find_elements_by_tag_name('a')
     links = [link.get_attribute('href') for link in links]

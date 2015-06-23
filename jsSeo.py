@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('jsSeo')
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = RotatingFileHandler(config['logfile'], maxBytes=10*1000*1000, backupCount=5)
+handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
