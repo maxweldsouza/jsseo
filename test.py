@@ -18,7 +18,7 @@ class TestDatastore(unittest.TestCase):
     def test_paths(self):
         self.assertEqual(self.datastore.next_url('http://example.com'), None)
         self.datastore.add_paths('http://example.com', ['/home'])
-        self.assertEqual(self.datastore.next_url('http://example.com'), '/home')
+        self.assertEqual(self.datastore.next_url('http://example.com'), 'http://example.com/home')
         self.datastore.delete_page('http://example.com/home')
         self.assertEqual(self.datastore.next_url('http://example.com'), None)
 

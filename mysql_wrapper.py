@@ -77,13 +77,16 @@ class MySqlWrapper():
         '''gets the url of the next page to be cached. returns
         none if there are no pages left to be cached'''
         try:
-            url = self.db.get_one('''
+            path = self.db.get_one('''
             select page_path
             from page
             where site_hostname = %s
             and (page_expires < current_timestamp()
             or page_content is null)''', (hostname,))
-            return url
+            if path:
+                return hostname + path
+            else:
+                return None
         except Exception, e:
             logging.error('Could not get next url', exc_info=True)
 

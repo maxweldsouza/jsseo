@@ -41,19 +41,27 @@ assert(absolute_to_relative('http://testsite.com/some?thing=very#!weird', 'http:
 
 datastore = MySqlWrapper()
 
-if config['browser'] == 'firefox':
-    browser = webdriver.Firefox()
-elif config['browser'] == 'google-chrome':
-    browser = webdriver.Chrome()
-elif config['browser'] == 'ie':
-    browser = webdriver.Ie()
-elif config['browser'] == 'opera':
-    browser = webdriver.Opera()
-elif config['browser'] == 'phantomjs':
-    browser = webdriver.PhantomJS()
+def create_browser():
+    if config['browser'] == 'firefox':
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference('permissions.default.image', 2)
+        browser = webdriver.Firefox(firefox_profile=profile)
+    elif config['browser'] == 'chrome':
+        browser = webdriver.Chrome()
+    elif config['browser'] == 'ie':
+        browser = webdriver.Ie()
+    elif config['browser'] == 'opera':
+        browser = webdriver.Opera()
+    elif config['browser'] == 'phantomjs':
+        browser = webdriver.PhantomJS()
+    else:
+        raise Exception('Incorrect browser in config')
+    return browser
 
+browser = create_browser()
 url = 'http://localhost:8900'
-while url:
+
+def process_page(browser, url):
     logging.info('Caching %s', url)
     browser.get(url)
     links = browser.find_elements_by_tag_name('a')
@@ -61,10 +69,24 @@ while url:
     # get only internal links and converts absolute links to relative
     links = [absolute_to_relative(link, url) for link in links if is_internal_url(link, url)]
 
+    return links, browser.page_source
+
+while url:
     site, path = utils.parse_url(url)
-    datastore.add_paths(links, site)
-    datastore.save_page(url, browser.page_source)
+    try:
+        links, source = process_page(browser, url)
+    except UnexpectedAlertPresentException, e:
+        browser.close()
+        browser = create_browser()
+        continue
+
+    datastore.add_paths(site, links)
+    logging.info('Adding paths %s', links)
+
+    if config['remove_scripts']:
+        source = utils.remove_script_tags(source)
+
+    datastore.save_page(url, source)
 
     url = datastore.next_url(site)
-
 browser.close()
