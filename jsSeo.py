@@ -15,14 +15,8 @@ It only allows getting requested pages.'''
 if config['installed']:
     db = utils.connect_to_database()
 
-# setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('jsSeo')
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler = RotatingFileHandler('jsSeo.log', maxBytes=10*1000*1000, backupCount=5)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        filename='jsSeo.log', level=logging.INFO)
 
 datastore = MySqlWrapper()
 
@@ -55,7 +49,7 @@ class InstallHandler(tornado.web.RequestHandler):
             except Exception, e:
                 message = ('Could not connect to database. '
                     'Check your settings and try again.')
-                logger.error(message)
+                logging.error(message)
                 self.write(message)
                 self.write(str(traceback.format_exc()))
 
@@ -63,7 +57,7 @@ class PageHandler(JsSeoHandler):
     def get(self, url):
         '''deliver pages to bots'''
         try:
-            logger.info('Serving %s to %s', url, self.request.headers['User-Agent'])
+            logging.info('Serving %s to %s', url, self.request.headers['User-Agent'])
             self.set_header('content-type', 'text/html')
             if not utils.is_valid_url(url):
                 self.send_error(400)
@@ -76,7 +70,7 @@ class PageHandler(JsSeoHandler):
             else:
                 self.write(content)
         except Exception, e:
-            logger.error('Error getting page for crawler', exc_info=True)
+            logging.error('Error getting page for crawler', exc_info=True)
 
 settings = {
     #'default_handler_class': ErrorHandler,
@@ -103,4 +97,4 @@ if __name__ == "__main__":
     else:
         application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
-    logger.info('JsSeo bot facing server running on port: %s', str(port))
+    logging.info('JsSeo bot facing server running on port: %s', str(port))
