@@ -12,5 +12,8 @@
     "remove_scripts": true,
     "ssl": false,
     "timeout": 30,
+    "urls": [
+        "http://localhost"
+        ],
     "username": "root"
 }

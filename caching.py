@@ -68,7 +68,6 @@ if config['headless']:
     display.start()
 
 browser = create_browser()
-url = 'http://localhost'
 
 def process_page(browser, url):
     logging.info('Caching %s', url)
@@ -81,32 +80,36 @@ def process_page(browser, url):
 
     return links, browser.page_source
 
-while url:
-    site, path = utils.parse_url(url)
-    try:
-        links, source = process_page(browser, url)
-    except selenium.common.exceptions.UnexpectedAlertPresentException, e:
-        browser.close()
-        browser = create_browser()
-        continue
-    except selenium.common.exceptions.TimeoutException:
-        datastore.save_page(url, None)
-        logger.info('Timeout on page %s', url)
-        continue
+def process_site(browser, url):
+    while url:
+        site, path = utils.parse_url(url)
+        try:
+            links, source = process_page(browser, url)
+        except selenium.common.exceptions.UnexpectedAlertPresentException, e:
+            browser.close()
+            browser = create_browser()
+            continue
+        except selenium.common.exceptions.TimeoutException:
+            datastore.save_page(url, None)
+            logger.info('Timeout on page %s', url)
+            continue
 
-    datastore.add_paths(site, links)
-    logging.info('Adding paths %s', links)
+        datastore.add_paths(site, links)
+        logging.info('Adding paths %s', links)
 
-    soup = BeautifulSoup(source)
-    if config['remove_scripts']:
-        [s.extract() for s in soup('script')]
-    # this will convert page source to utf-8 irrespective of
-    # its character set. the charset meta tag will also be changed
-    source = soup.prettify()
+        soup = BeautifulSoup(source)
+        if config['remove_scripts']:
+            [s.extract() for s in soup('script')]
+        # this will convert page source to utf-8 irrespective of
+        # its character set. the charset meta tag will also be changed
+        source = soup.prettify()
 
-    datastore.save_page(url, source)
+        datastore.save_page(url, source)
+        url = datastore.next_url(site)
 
-    url = datastore.next_url(site)
+for url in config['urls']:
+    process_site(browser, url)
+
 browser.close()
 
 if config['headless']:
