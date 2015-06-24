@@ -109,4 +109,5 @@ while url:
     url = datastore.next_url(site)
 browser.close()
 
-display.stop()
+if config['headless']:
+    display.stop()
