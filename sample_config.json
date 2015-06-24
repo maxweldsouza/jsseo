@@ -3,6 +3,7 @@
     "browser": "firefox",
     "certfile": "path/to/the/crt/file",
     "database": "jsseo",
+    "headless": true, 
     "hostname": "localhost",
     "installed": true,
     "keyfile": "path/to/the/key/file",
