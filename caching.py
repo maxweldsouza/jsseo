@@ -67,7 +67,10 @@ if config['headless']:
     display = Display(visible=0, size=(1024, 768))
     display.start()
 
-browser = create_browser()
+try:
+    browser = create_browser()
+except Exception, e:
+    logger.error('Could not start browser', exc_info=True)
 
 def process_page(browser, url):
     logging.info('Caching %s', url)
@@ -93,6 +96,8 @@ def process_site(browser, url):
             datastore.save_page(url, None)
             logger.info('Timeout on page %s', url)
             continue
+        except Exception, e:
+            logger.error('Unexpected error while processing page', exc_info=True)
 
         datastore.add_paths(site, links)
         logging.info('Adding paths %s', links)
