@@ -16,7 +16,7 @@ if config['installed']:
     db = utils.connect_to_database()
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        filename='jsSeo.log', level=logging.INFO)
+        filename='jsseo.log', level=logging.INFO)
 
 datastore = MySqlWrapper()
 
