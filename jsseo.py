@@ -66,7 +66,7 @@ class PageHandler(JsSeoHandler):
             content = datastore.get_page(url)
 
             if content is None:
-                self.set_error(502)
+                self.send_error(502)
             else:
                 self.write(content)
         except Exception, e:
