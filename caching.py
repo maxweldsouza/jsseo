@@ -65,7 +65,7 @@ def create_browser():
     browser.set_script_timeout(config['timeout'])
     return browser
 
-virtual_display_required = config['headless'] and not 'DISPLAY' in os.environ:
+virtual_display_required = config['headless'] and not 'DISPLAY' in os.environ
 
 if virtual_display_required:
     display = Display(visible=0, size=(1024, 768))
