@@ -96,7 +96,6 @@ def process_site(browser, url):
             browser = create_browser()
             continue
         except selenium.common.exceptions.TimeoutException:
-            datastore.save_page(url, None)
             logging.info('Timeout on page %s', url)
             continue
         except Exception, e:
