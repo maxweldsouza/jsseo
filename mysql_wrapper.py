@@ -109,3 +109,16 @@ class MySqlWrapper():
             except Exception, e:
                 logging.error('Could not add paths', exc_info=True)
                 self.db.rollback()
+
+    def get_paths(self, hostname):
+        try:
+            paths = self.db.get_all('''
+            select page_path from page
+            where site_hostname = %s''', (hostname,))
+            if paths:
+                return [hostname + path[0] for path in paths]
+            else:
+                return None
+        except Exception, e:
+            logging.error('Could not add paths', exc_info=True)
+
