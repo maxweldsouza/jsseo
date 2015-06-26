@@ -6,6 +6,7 @@ from mysql_wrapper import MySqlWrapper
 from bs4 import BeautifulSoup
 import logging
 import utils
+import time
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         filename='caching.log', level=logging.INFO)
@@ -85,6 +86,8 @@ def process_page(browser, url):
 
 def process_site(browser, url):
     while url:
+        time.sleep(1) # rate limit
+
         site, path = utils.parse_url(url)
         try:
             links, source = process_page(browser, url)
