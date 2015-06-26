@@ -100,6 +100,7 @@ def process_site(browser, url):
             continue
         except Exception, e:
             logging.error('Unexpected error while processing page', exc_info=True)
+            exit()
 
         datastore.add_paths(site, links)
         logging.info('Adding paths %s', links)
