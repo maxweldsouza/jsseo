@@ -94,10 +94,10 @@ def process_site(browser, url):
             continue
         except selenium.common.exceptions.TimeoutException:
             datastore.save_page(url, None)
-            logger.info('Timeout on page %s', url)
+            logging.info('Timeout on page %s', url)
             continue
         except Exception, e:
-            logger.error('Unexpected error while processing page', exc_info=True)
+            logging.error('Unexpected error while processing page', exc_info=True)
 
         datastore.add_paths(site, links)
         logging.info('Adding paths %s', links)
