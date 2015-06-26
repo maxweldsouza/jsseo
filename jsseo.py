@@ -8,6 +8,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from utils import JsSeoHandler
 import utils
+from sitemap import sitemap
 
 '''The botfacing server faces the internet.
 It only allows getting requested pages.'''
@@ -53,6 +54,14 @@ class InstallHandler(tornado.web.RequestHandler):
                 self.write(message)
                 self.write(str(traceback.format_exc()))
 
+class SitemapHandler(JsSeoHandler):
+    def get(self, url):
+        try:
+            self.set_header('content-type', 'application/xml; charset="utf-8"')
+            self.write(sitemap(datastore.get_paths(url)))
+        except Exception, e:
+            logging.error('Error generating sitemap', exc_info=True)
+
 class PageHandler(JsSeoHandler):
     def get(self, url):
         '''deliver pages to bots'''
@@ -83,6 +92,7 @@ settings = {
 
 application = tornado.web.Application([
     (r"/install", InstallHandler),
+    (r"/sitemap/(.*)", SitemapHandler),
     (r"/(.*)", PageHandler),
     ], **settings)
 
