@@ -3,22 +3,22 @@
 A way to render web pages that are generated on the client
 side for web robots.
 
-# How it Works
+## How it Works
 
 -jsseo runs a headless browser like firefox or chrome using selenium
 -jsseo crawls your site and stores a copy of every page in a mysql databas
 -jsseo then delivers pages to search engine crawlers on request
 
-# Features
+## Features
 
 -Browser of your choice
 -Runs headless
 -Caches pages in mysql
 -Automatically generates a sitemap
 
-# Installation
+## Installation
 
-## Dependencies
+### Dependencies
 -pyvirtualdisplay
 -selenium
 -mysql
@@ -27,12 +27,12 @@ side for web robots.
 -mysqldbhelper
 -browsers: chromium/firefox/phantomjs
 
-## Configuration Options
+### Configuration Options
 
 Configuration options are set in config.json. 
 Instructions in sample_config.json.
 
-# Logs
+## Logs
 
-# Note
+## Note
 Tested with Firefox on Ubuntu Server.
