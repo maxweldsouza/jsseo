@@ -1,19 +1,18 @@
 {
-    "port": 4000,
-    "browser": "firefox",
-    "certfile": "path/to/the/crt/file",
-    "database": "jsseo",
-    "headless": true, 
-    "hostname": "localhost",
-    "installed": true,
-    "keyfile": "path/to/the/key/file",
-    "logfile": "jsSeo.log",
-    "password": "password",
-    "remove_scripts": true,
-    "ssl": false,
-    "timeout": 30,
+    "debug": false, // tornado debugging mode
+    "hostname": "localhost", // mysql hostname
+    "username": "username", // mysql username
+    "password": "password", // password to mysql database
+    "database": "jsseo", // mysql database name
+    "port": 4000, // port of mysql database
+    "browser": "firefox", // firefox, chrome, opera, phantomjs
+    "headless": true,  // will create a virtual display using Xvfb if true
+    "installed": true, // leave this set to true
+    // leave this true so that google doesnt try to scripts
+    "remove_scripts": true, // if true will remove all script tags from the page
+    "timeout": 30, // timeout for page load to complete
+    // list of sites to be crawled
     "urls": [
         "http://localhost"
-        ],
-    "username": "root"
+    ]
 }

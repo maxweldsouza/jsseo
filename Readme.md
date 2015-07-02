@@ -22,3 +22,8 @@ Automatically generates a sitemap
 
 Configuration options are set in config.json
 Instructions in sample_config.json
+
+# Logs
+# Note
+I have only tested this with Firefox on Ubuntu Server
+It should work with other browsers as well

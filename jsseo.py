@@ -29,7 +29,6 @@ class InstallHandler(tornado.web.RequestHandler):
             self.send_error(400)
 
     def post(self):
-        #TODO copy sample_config.json to config.json
         if not config['installed']:
             config['database'] = self.get_argument('database')
             config['username'] = self.get_argument('username')
@@ -82,11 +81,9 @@ class PageHandler(JsSeoHandler):
             logging.error('Error getting page for crawler', exc_info=True)
 
 settings = {
-    #'default_handler_class': ErrorHandler,
     'default_handler_args': dict(status_code=404),
     'compress_response': True,
-    'debug' : True,
-    'cookie_secret' : 'TODO add some secret string here',
+    'debug' : config['debug'],
     'xsrf_cookies': False
 }
 
@@ -98,13 +95,8 @@ application = tornado.web.Application([
 
 if __name__ == "__main__":
     port = config['port']
-    if config['ssl']:
-        server = HTTPServer(application, ssl_options = {
-            'certfile': os.path.join(config.certfile),
-            'keyfile': os.path.join(config.keyfile),
-            })
-        server.listen(port)
-    else:
-        application.listen(port)
+    application.listen(port)
+    message = 'JsSeo running on port: %s' % str(port)
+    print message
+    logging.info(message)
     tornado.ioloop.IOLoop.instance().start()
-    logging.info('JsSeo bot facing server running on port: %s', str(port))
