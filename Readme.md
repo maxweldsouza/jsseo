@@ -6,11 +6,12 @@ side for web robots.
 ## How it Works
 
 * jsseo runs a headless browser like firefox or chrome using selenium
-* jsseo crawls your site and stores a copy of every page in a mysql databas
+* jsseo crawls your site and stores a copy of every page in a mysql database
 * jsseo then delivers pages to search engine crawlers on request
 
 ## Features
 
+* Supports _escaped_fragment_
 * Browser of your choice
 * Runs headless
 * Caches pages in mysql
