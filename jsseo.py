@@ -71,7 +71,7 @@ class PageHandler(JsSeoHandler):
                 self.send_error(400)
                 return
 
-            content = datastore.get_page(url)
+            content = datastore.get_page(utils.to_pretty_url(url))
 
             if content is None:
                 self.send_error(502)

@@ -4,6 +4,7 @@ import mysqldbhelper
 from urlparse import urlparse
 from config import config
 import re
+import urllib
 
 def get_links(html, hostname):
     '''returns a list of urls in a hrefs. if a hostname is specified
@@ -17,6 +18,34 @@ assert(is_valid_url('http://www.google.com'))
 assert(is_valid_url('https://www.google.com'))
 assert(not is_valid_url('ftp://www.google.com'))
 assert(not is_valid_url('www.google.com'))
+
+def to_ugly_url(url):
+    '''https://developers.google.com/webmasters/ajax-crawling/docs/specification'''
+    url.split('#!')
+
+def to_pretty_url(url):
+    ''' converts a url with _escaped_fragment_= to a url with a #! fragment
+    according to
+    https://developers.google.com/webmasters/ajax-crawling/docs/specification'''
+
+    if '_escaped_fragment_=' in url:
+        head, tail = url.split('_escaped_fragment_=')
+    else:
+        return url
+
+    if head.endswith('?') or head.endswith('&'):
+        head = head[:-1]
+    result = head
+    if tail:
+        result += '#!' + urllib.unquote(tail)
+    return result
+
+assert(to_pretty_url('http://www.example.com/ajax.html?_escaped_fragment_=key=value') ==
+        'http://www.example.com/ajax.html#!key=value')
+assert(to_pretty_url('http://www.example.com/ajax.html?_escaped_fragment_=') ==
+        'http://www.example.com/ajax.html')
+assert(to_pretty_url('http://www.example.com/ajax.html?_escaped_fragment_=some%2Fthing') ==
+        'http://www.example.com/ajax.html#!some/thing')
 
 def is_valid_path(path):
     if path == '#':
