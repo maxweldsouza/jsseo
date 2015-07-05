@@ -30,7 +30,7 @@ side for web robots.
 
 ### Configuration Options
 
-Configuration options are set in config.json. 
+Configuration options are set in config.json.
 Instructions in sample_config.json.
 
 ## Logs

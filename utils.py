@@ -46,6 +46,8 @@ assert(to_pretty_url('http://www.example.com/ajax.html?_escaped_fragment_=') ==
         'http://www.example.com/ajax.html')
 assert(to_pretty_url('http://www.example.com/ajax.html?_escaped_fragment_=some%2Fthing') ==
         'http://www.example.com/ajax.html#!some/thing')
+assert(to_pretty_url('http://www.example.com/ajax.html') ==
+        'http://www.example.com/ajax.html')
 
 def is_valid_path(path):
     if path == '#':
