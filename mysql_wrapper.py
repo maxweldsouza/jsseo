@@ -26,6 +26,12 @@ class MySqlWrapper():
         except Exception, e:
             logging.error('Could not get page', exc_info=True)
 
+    def failed_attempt(self, url):
+        '''registers a failed attempt'''
+        self.db.put('''
+        update page
+        set page_attempts = page_attempts + 1''', ())
+
     def save_page(self, url, html):
         '''saves the dom for the path'''
         try:

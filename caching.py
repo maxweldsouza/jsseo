@@ -100,6 +100,7 @@ def process_site(browser, url):
             continue
         except selenium.common.exceptions.TimeoutException:
             logging.info('Timeout on page %s', url)
+            datastore.failed_attempt(url)
             continue
         except Exception, e:
             logging.error('Unexpected error while processing page', exc_info=True)
