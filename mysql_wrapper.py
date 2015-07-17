@@ -83,7 +83,7 @@ class MySqlWrapper():
         '''gets the url of the next page to be cached. returns
         none if there are no pages left to be cached. the preference
         for the order in which paths are returned is:
-            paths that are not indexed
+            paths that are not indexed and with less than 3 failed attempts
             paths with the earliest expiration time with no failed attempts
             paths with the earliest expiration time with one failed attempts
             paths with the earliest expiration time with two failed attempts
@@ -95,6 +95,7 @@ class MySqlWrapper():
             from page
             where site_hostname = %s
             and page_content is null
+            and page_attempts < 3
             ''', (hostname,))
 
             failed_attempts = 0
