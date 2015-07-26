@@ -10,8 +10,15 @@ import utils
 import time
 import os
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        filename='caching.log', level=logging.INFO)
+# setup logging
+logger = logging.getLogger('ScantuaryAdmin')
+logger.setLevel(logging.DEBUG) # to console
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO) # to stderr
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 class InvalidUrlError(Exception): pass
 

@@ -16,8 +16,16 @@ It only allows getting requested pages.'''
 if config['installed']:
     db = utils.connect_to_database()
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        filename='jsseo.log', level=logging.INFO)
+# setup logging
+# errors are written to stderr, upstart script writes them to /var/www/logs/
+logger = logging.getLogger('Jsseo')
+logger.setLevel(logging.DEBUG) # to console
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO) # to stderr and log through upstart
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 datastore = MySqlWrapper()
 
