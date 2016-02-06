@@ -3,6 +3,11 @@
 A way to render web pages that are generated on the client
 side for web robots.
 
+This was initially used at [Comparnion.com](https://comparnion.com).
+It was called scantuary.com at that time. We used this to prerender pages
+for googlebot. Although this worked fine, we have now moved to react.
+Our site is isomorphic now so this repository is no longer used.
+
 ## How it Works
 
 * jsseo runs a headless browser like firefox or chrome using selenium

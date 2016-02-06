@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+
+'''
+Jsseo caches your javascript heavy web pages in a mysql database so that
+you can serve it to web spiders. It uses selenium alongwith a regular browser
+like chrome or firefox to generates snapshots of pages.
+'''
+
 import tornado.ioloop
 import tornado.web
 from tornado.httpserver import HTTPServer
